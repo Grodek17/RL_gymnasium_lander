@@ -35,20 +35,39 @@ class NeuralNetwork(nn.Module):
         x = self.last(x)
         return x
     
+lrate = 0.001
 model = NeuralNetwork()
+#ready loss and backpropagating functions
+loss_fn = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=lrate)
 
+
+'''
+UNDERSTANDING INPUT AND OUTPUT DEBUGGING
 obs, info = env.reset()
-
 print(obs)
-
 obs_tensor = torch.tensor(obs)
 q_val = model(obs_tensor)
 print(q_val)
 action = torch.argmax(q_val).item()
 print("action: ", action)
+'''
+
+#decides action for agent, either random or NN based.
+#takes tensor and int as inputs, returns integer (action code)
+def epsilon_greedy_action(x, epsilon):
+    chance = random.random()
+
+    if chance < epsilon:
+        action = random.randint(0,3)        #random choice
+    else:
+        with torch.no_grad():               #
+            qvalues = model(x)
+        action = torch.argmax(qvalues).item()
+
+    return action
 
 
-'''       
 for episode in range(NUMBER_OF_EPISODES):
     obs, info = env.reset()     #starting state
     episode_ended = False
@@ -69,5 +88,5 @@ for episode in range(NUMBER_OF_EPISODES):
     
         total_reward += reward                                                  #sum rewards
         steps += 1                                                              #sum steps
-'''
+
 env.close()  
