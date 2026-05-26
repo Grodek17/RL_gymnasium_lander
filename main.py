@@ -6,6 +6,7 @@ import torch.nn as nn
 
 #constants
 NUMBER_OF_EPISODES = 20000
+DEBUG = True
 
 
 #hyperparameters of Q learning
@@ -60,33 +61,54 @@ def epsilon_greedy_action(x, epsilon):
 
     if chance < epsilon:
         action = random.randint(0,3)        #random choice
+        if DEBUG:
+            print("Random action selected: ", action)
     else:
-        with torch.no_grad():               #
+        with torch.no_grad():               
             qvalues = model(x)
-        action = torch.argmax(qvalues).item()
+            action = torch.argmax(qvalues).item()
+        if DEBUG:
+            print("Model determined: qValues: ", qvalues, " action: ", action)
 
     return action
 
+#main loop of training in the enviroment
+def training():
+    for episode in range(NUMBER_OF_EPISODES):
+        obs, info = env.reset()     #starting state
+        episode_ended = False
+        total_reward = 0
+        steps = 0
+        epsilon = max((epsilon * 0.999), MINIMAL_EPSILON)
 
-for episode in range(NUMBER_OF_EPISODES):
-    obs, info = env.reset()     #starting state
-    episode_ended = False
-    total_reward = 0
-    steps = 0
-    epsilon = max((epsilon * 0.999), MINIMAL_EPSILON)
+        while not done:
 
-    while not done:
+            action = random.randint(0,3)
+            
+            next_obs, reward, terminated, truncated, info = env.step(action)    #take the next step
+            done = terminated or truncated                                      #check if crashed or truncuated
 
-        action = random.randint(0,3)
+            
+            obs = next_obs                                                          #next step becomes initial step
+
         
-        next_obs, reward, terminated, truncated, info = env.step(action)    #take the next step
-        done = terminated or truncated                                      #check if crashed or truncuated
+            total_reward += reward                                                  #sum rewards
+            steps += 1                                                              #sum steps
 
-        
-        obs = next_obs                                                          #next step becomes initial step
+    env.close()  
 
-    
-        total_reward += reward                                                  #sum rewards
-        steps += 1                                                              #sum steps
 
-env.close()  
+
+''' TESTING ZONE '''
+
+obs, info = env.reset()     #starting state
+obs_tensor = torch.tensor(obs)
+
+#three random actions
+epsilon_greedy_action(obs_tensor, 1)
+epsilon_greedy_action(obs_tensor, 1)
+epsilon_greedy_action(obs_tensor, 1)
+#three NN actions
+epsilon_greedy_action(obs_tensor, 0)
+epsilon_greedy_action(obs_tensor, 0)
+epsilon_greedy_action(obs_tensor, 0)
