@@ -36,6 +36,28 @@ class NeuralNetwork(nn.Module):
         x = self.last(x)
         return x
     
+#class for storing states of the enviroment, for training the neural network
+class ExperienceBuffer():
+    def __init__(self, max_size):
+        self.buffersize = max_size
+        self.buffer = []
+
+    #action must be torch.size([8])
+    def add(self, action):
+        if(len(self.buffer) > self.buffersize):
+            if DEBUG:
+                print("List approached full capacity, removing oldest record")
+            self.buffer.pop(0)
+        
+        self.buffer.append(action)
+    
+    def printBuffer(self):
+        print("=== PRINT STARTED ===")
+        for x in range(len(self.buffer)):
+            print(x, ": ", self.buffer[x])
+
+
+
 lrate = 0.001
 model = NeuralNetwork()
 #ready loss and backpropagating functions
@@ -101,9 +123,16 @@ def training():
 
 ''' TESTING ZONE '''
 
+'''  OBSERVATION AND TENSOR
 obs, info = env.reset()     #starting state
 obs_tensor = torch.tensor(obs)
 
+print(obs_tensor.shape)
+'''
+
+
+
+''' TESTING EPSILON GREEDY FUNCTION
 #three random actions
 epsilon_greedy_action(obs_tensor, 1)
 epsilon_greedy_action(obs_tensor, 1)
@@ -112,3 +141,15 @@ epsilon_greedy_action(obs_tensor, 1)
 epsilon_greedy_action(obs_tensor, 0)
 epsilon_greedy_action(obs_tensor, 0)
 epsilon_greedy_action(obs_tensor, 0)
+'''
+ 
+'''  TESTING BUFFER CLASS
+testingBuffer = ExperienceBuffer(5)
+
+for x in range(10):
+    testingBuffer.add(x)
+    testingBuffer.printBuffer()
+
+print("end state of list: ")
+print(testingBuffer.buffer)
+'''
