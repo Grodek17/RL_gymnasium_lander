@@ -5,10 +5,10 @@ import torch.nn as nn
 
 
 #constants
-NUMBER_OF_EPISODES = 300
-BUFFER_SIZE = 10
-DEBUG = True
-TRAINING_BATCH_SIZE = 3
+NUMBER_OF_EPISODES = 5000
+BUFFER_SIZE = 1000
+DEBUG = False
+TRAINING_BATCH_SIZE = 64
 
 
 #hyperparameters of Q learning
@@ -100,7 +100,7 @@ lrate = 0.001
 model = NeuralNetwork()
 buffer = ExperienceBuffer(BUFFER_SIZE)
 #ready loss and backpropagating functions
-loss_fn = nn.MSELoss()
+#loss_fn = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=lrate)
 
 env = gymnasium.make("LunarLander-v3", continuous=False, gravity=-10.0,
@@ -197,16 +197,18 @@ def training():
                 pass
 
             #training step
-            '''
+            
                 if len(buffer.buffer) < buffer.buffersize:
                  modelLearning()
-            '''
+            
 
             obs = next_obs                                                          #next step becomes initial step
 
         
             total_reward += reward                                                  #sum rewards
-            steps += 1                                                              #sum steps
+            steps += 1          
+            if(terminated or truncated):
+                print("episode: ", episode, " total reward: ", total_reward)                                                    #sum steps
 
     env.close()  
 
