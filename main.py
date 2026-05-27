@@ -5,9 +5,10 @@ import torch.nn as nn
 
 
 #constants
-NUMBER_OF_EPISODES = 20
-BUFFER_SIZE = 100
+NUMBER_OF_EPISODES = 300
+BUFFER_SIZE = 10
 DEBUG = True
+TRAINING_BATCH_SIZE = 3
 
 
 #hyperparameters of Q learning
@@ -44,11 +45,13 @@ class ExperienceBuffer():
     def add(self, observation, action, next_observation, reward, done):
         if(len(self.buffer) > self.buffersize):
             if DEBUG:
-                print("List approached full capacity, removing oldest record")
+                #print("List approached full capacity, removing oldest record")
+                pass
             self.buffer.pop(0)
         
         self.buffer.append((observation, action, next_observation, reward, done))
 
+    #provides batch of separate vectors of each attribute, used in later computing
     def giveRandomBatch(self, batch_size):
         if DEBUG:
             print("selecting batch_size random entries from list")
@@ -56,17 +59,35 @@ class ExperienceBuffer():
         if len(self.buffer) < (self.buffersize - 1):
             raise ValueError("Buffer not full, cannot give random batch")
 
-        batch = []
+        packed_observations = []
+        packed_actions = []
+        packed_nexts = []
+        packed_reward = []
+        packed_dones = []
         for x in range(batch_size):
             index = random.randint(0, self.buffersize - 1)
-            batch.append(self.buffer[index])
-            print("DEBUG: selected index: ", index, " batch: ", batch)
+            packed_observations.append(self.buffer[index][0])
+            packed_actions.append(self.buffer[index][1])
+            packed_nexts.append(self.buffer[index][2])
+            packed_reward.append(self.buffer[index][3])
+            packed_dones.append(self.buffer[index][4])
         
+        #turning into tensors
+        packed_observations = torch.stack(packed_observations)
+        packed_actions = torch.stack(packed_actions)
+        packed_nexts = torch.stack(packed_nexts)
+        packed_reward = torch.stack(packed_reward)
+        packed_dones = torch.stack(packed_dones)
+
         if DEBUG:
-            print("whole buffer: ", self.buffer)
-            print("selected random batch: ", batch, "batch size: ", len(batch))
+            print(packed_observations.shape, packed_observations.dtype)
+            print(packed_actions.shape, packed_actions.dtype)
+            print(packed_nexts.shape, packed_nexts.dtype)
+            print(packed_reward.shape, packed_reward.dtype)
+            print(packed_dones.shape, packed_dones.dtype)
+            
         
-        return batch
+        return packed_observations, packed_actions, packed_nexts, packed_reward, packed_dones
 
     
     def printBuffer(self):
@@ -77,7 +98,7 @@ class ExperienceBuffer():
 
 lrate = 0.001
 model = NeuralNetwork()
-buffer = ExperienceBuffer(20)
+buffer = ExperienceBuffer(BUFFER_SIZE)
 #ready loss and backpropagating functions
 loss_fn = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=lrate)
@@ -98,18 +119,60 @@ def epsilon_greedy_action(x, epsilon):
     if chance < epsilon:
         action = random.randint(0,3)        #random choice
         if DEBUG:
-            print("Random action selected: ", action)
+            #print("Random action selected: ", action)
+            pass
     else:
         with torch.no_grad():               
             qvalues = model(x)
             action = torch.argmax(qvalues).item()
         if DEBUG:
-            print("Model determined: qValues: ", qvalues, " action: ", action)
+            #print("Model determined: qValues: ", qvalues, " action: ", action)
+            pass
 
     return action
 
 def modelLearning():
-    pass
+    obs, actions, nexts, rewards, dones = buffer.giveRandomBatch(TRAINING_BATCH_SIZE)
+    Qvalues = model(obs)
+    unsqueezed_actions = actions.unsqueeze(1)
+    Qsa = Qvalues.gather(1, unsqueezed_actions)
+
+
+    with torch.no_grad():
+        nextQs = model(nexts)
+        best_moves = nextQs.max(dim = 1).values
+
+
+    
+    #print("nextQs: ", nextQs)
+    #print("Choosen Q: ", best_moves)
+    target = rewards + GAMMA * (1 - dones) * best_moves
+
+    #MSE
+    loss = ((Qsa - target)**2).mean()
+    
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+
+
+
+    '''
+    print("== target debug ==")
+    print("target shape: ", target.shape)
+    print("rewards shape: ", rewards.shape)
+    print("dones shape: ", dones.shape)
+    print("best_moves shape: ", best_moves.shape)
+    print("=====")
+    print("rewards: ", rewards)
+    print("gamma", GAMMA)
+    print("dones", dones)
+    print("best: ", best_moves)
+    print("equals target: ", target)
+    '''
+    
+
 #main loop of training in the enviroment
 def training():
     epsilon = INITIAL_EPSILON
@@ -127,11 +190,18 @@ def training():
             next_obs, reward, terminated, truncated, info = env.step(action)    #take the next step
             episode_ended = terminated or truncated                                      #check if crashed or truncuated
 
-            buffer.add(obs_tensor, action, torch.tensor(next_obs), torch.tensor(reward), torch.tensor(float(episode_ended)))
+            buffer.add(obs_tensor, torch.tensor(action), torch.tensor(next_obs), torch.tensor(reward, dtype=torch.float32), torch.tensor(float(episode_ended)))
             if DEBUG:
-                buffer.printBuffer
-                return 1
-            
+                #buffer.printBuffer
+                #return 1
+                pass
+
+            #training step
+            '''
+                if len(buffer.buffer) < buffer.buffersize:
+                 modelLearning()
+            '''
+
             obs = next_obs                                                          #next step becomes initial step
 
         
@@ -144,15 +214,18 @@ def training():
 def main():
     training()
     #buffer.printBuffer()
-    #buffer.giveRandomBatch(4)
+    #print("ilosc rekordow:",len(buffer.buffer))
+    #buffer.giveRandomBatch(11)
+    modelLearning()
+    pass
+
 
 
 if __name__ == "__main__":
     main()
 
-training()
-buffer.printBuffer()
-buffer.giveRandomBatch(4)
+
+
 
 ''' TESTING ZONE '''
 
@@ -200,4 +273,24 @@ print(testingBuffer.buffer)
 
 print("=== random batch test ===")
 batch = testingBuffer.giveRandomBatch(4)
+
+
+
+training()
+buffer.printBuffer()
+buffer.giveRandomBatch(4)
+'''
+
+
+''' TESTING TUPLE UNPACKING
+    lista = [("Pawel", 18, "student"), ("Kasia", 20, "studentka"), ("Mateusz", 28, "worker"), ("John", 128, "dziads")]
+    imiona = []
+    wieki = []
+    zawody = []
+    for x in range(4):
+        imiona.append(lista[x][0])
+        wieki.append(lista[x][1])
+        zawody.append(lista[x][2])
+
+    print("imiona odpakowane: ", imiona)
 '''
