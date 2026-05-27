@@ -50,6 +50,26 @@ class ExperienceBuffer():
             self.buffer.pop(0)
         
         self.buffer.append(action)
+
+    def giveRandomBatch(self, batch_size):
+        if DEBUG:
+            print("selecting batch_size random entries from list")
+
+        if len(self.buffer) < (self.buffersize - 1):
+            raise ValueError("Buffer not full, cannot give random batch")
+
+        batch = []
+        for x in range(batch_size):
+            index = random.randint(0, self.buffersize - 1)
+            batch.append(self.buffer[index])
+            print("DEBUG: selected index: ", index, " batch: ", batch)
+        
+        if DEBUG:
+            print("whole buffer: ", self.buffer)
+            print("selected random batch: ", batch, "batch size: ", len(batch))
+        
+        return batch
+
     
     def printBuffer(self):
         print("=== PRINT STARTED ===")
@@ -97,15 +117,15 @@ def epsilon_greedy_action(x, epsilon):
 #main loop of training in the enviroment
 def training():
     for episode in range(NUMBER_OF_EPISODES):
-        obs, info = env.reset()     #starting state
+        obs, info = env.reset()             #starting state
         episode_ended = False
         total_reward = 0
         steps = 0
         epsilon = max((epsilon * 0.999), MINIMAL_EPSILON)
 
         while not done:
-
-            action = random.randint(0,3)
+            obs_tensor = torch.tensor(obs)      #turning observation into tensor #TODO: this could be inside epsilon function perhaps?
+            action = epsilon_greedy_action(obs_tensor)
             
             next_obs, reward, terminated, truncated, info = env.step(action)    #take the next step
             done = terminated or truncated                                      #check if crashed or truncuated
@@ -143,7 +163,7 @@ epsilon_greedy_action(obs_tensor, 0)
 epsilon_greedy_action(obs_tensor, 0)
 '''
  
-'''  TESTING BUFFER CLASS
+''' TESTING BUFFER CLASS 
 testingBuffer = ExperienceBuffer(5)
 
 for x in range(10):
@@ -152,4 +172,7 @@ for x in range(10):
 
 print("end state of list: ")
 print(testingBuffer.buffer)
+
+print("=== random batch test ===")
+batch = testingBuffer.giveRandomBatch(4)
 '''
