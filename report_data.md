@@ -283,3 +283,118 @@ Learning rate: 0.001
 - Episode 4950.0: -51.42, epsilon: 0.50
 #================
 
+#=== REPORT: TWO NN AND NORMALISATION ===
+
+note: after adding normalisation recent rewards got even better results
+memo: basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning
+NN Layout: 8->64->RELU->64->RELU->4 (two hidden layers of 64 neurons, ReLU activation function, MSE loss function)
+Number of episodes: 5000
+Buffer size: 3000
+Batch size: 64
+Gamma: 0.99
+Learning rate: 0.001
+
+## Mean rewards
+
+- Episode 0.0: -107.08, epsilon: 1.00
+- Episode 50.0: -156.47, epsilon: 0.99
+- Episode 100.0: -193.21, epsilon: 0.99
+- Episode 150.0: -166.59, epsilon: 0.98
+- Episode 200.0: -174.64, epsilon: 0.98
+- Episode 250.0: -182.23, epsilon: 0.97
+- Episode 300.0: -164.34, epsilon: 0.97
+- Episode 350.0: -157.46, epsilon: 0.96
+- Episode 400.0: -138.45, epsilon: 0.96
+- Episode 450.0: -151.38, epsilon: 0.95
+- Episode 500.0: -156.80, epsilon: 0.95
+- Episode 550.0: -157.90, epsilon: 0.94
+- Episode 600.0: -148.08, epsilon: 0.94
+- Episode 650.0: -163.67, epsilon: 0.93
+- Episode 700.0: -149.38, epsilon: 0.93
+- Episode 750.0: -121.35, epsilon: 0.92
+- Episode 800.0: -126.83, epsilon: 0.92
+- Episode 850.0: -140.15, epsilon: 0.91
+- Episode 900.0: -125.62, epsilon: 0.91
+- Episode 950.0: -138.27, epsilon: 0.90
+- Episode 1000.0: -135.84, epsilon: 0.90
+- Episode 1050.0: -134.07, epsilon: 0.89
+- Episode 1100.0: -130.45, epsilon: 0.89
+- Episode 1150.0: -104.40, epsilon: 0.88
+- Episode 1200.0: -138.62, epsilon: 0.88
+- Episode 1250.0: -101.19, epsilon: 0.87
+- Episode 1300.0: -121.82, epsilon: 0.87
+- Episode 1350.0: -110.96, epsilon: 0.86
+- Episode 1400.0: -124.06, epsilon: 0.86
+- Episode 1450.0: -113.67, epsilon: 0.85
+- Episode 1500.0: -111.40, epsilon: 0.85
+- Episode 1550.0: -103.66, epsilon: 0.84
+- Episode 1600.0: -98.71, epsilon: 0.84
+- Episode 1650.0: -98.23, epsilon: 0.83
+- Episode 1700.0: -92.09, epsilon: 0.83
+- Episode 1750.0: -96.89, epsilon: 0.82
+- Episode 1800.0: -88.75, epsilon: 0.82
+- Episode 1850.0: -97.16, epsilon: 0.81
+- Episode 1900.0: -89.55, epsilon: 0.81
+- Episode 1950.0: -95.02, epsilon: 0.80
+- Episode 2000.0: -86.76, epsilon: 0.80
+- Episode 2050.0: -83.65, epsilon: 0.79
+- Episode 2100.0: -84.26, epsilon: 0.79
+- Episode 2150.0: -80.17, epsilon: 0.78
+- Episode 2200.0: -84.34, epsilon: 0.78
+- Episode 2250.0: -90.89, epsilon: 0.77
+- Episode 2300.0: -74.84, epsilon: 0.77
+- Episode 2350.0: -80.48, epsilon: 0.76
+- Episode 2400.0: -83.12, epsilon: 0.76
+- Episode 2450.0: -75.93, epsilon: 0.75
+- Episode 2500.0: -85.78, epsilon: 0.75
+- Episode 2550.0: -83.57, epsilon: 0.74
+- Episode 2600.0: -77.92, epsilon: 0.74
+- Episode 2650.0: -90.11, epsilon: 0.73
+- Episode 2700.0: -77.85, epsilon: 0.73
+- Episode 2750.0: -79.91, epsilon: 0.72
+- Episode 2800.0: -81.69, epsilon: 0.72
+- Episode 2850.0: -77.01, epsilon: 0.71
+- Episode 2900.0: -90.86, epsilon: 0.71
+- Episode 2950.0: -81.27, epsilon: 0.70
+- Episode 3000.0: -80.09, epsilon: 0.70
+- Episode 3050.0: -71.44, epsilon: 0.69
+- Episode 3100.0: -72.13, epsilon: 0.69
+- Episode 3150.0: -76.52, epsilon: 0.68
+- Episode 3200.0: -82.49, epsilon: 0.68
+- Episode 3250.0: -77.00, epsilon: 0.67
+- Episode 3300.0: -80.16, epsilon: 0.67
+- Episode 3350.0: -76.06, epsilon: 0.66
+- Episode 3400.0: -69.31, epsilon: 0.66
+- Episode 3450.0: -66.24, epsilon: 0.65
+- Episode 3500.0: -70.36, epsilon: 0.65
+- Episode 3550.0: -75.64, epsilon: 0.64
+- Episode 3600.0: -73.05, epsilon: 0.64
+- Episode 3650.0: -76.06, epsilon: 0.63
+- Episode 3700.0: -68.50, epsilon: 0.63
+- Episode 3750.0: -65.57, epsilon: 0.62
+- Episode 3800.0: -66.47, epsilon: 0.62
+- Episode 3850.0: -64.14, epsilon: 0.61
+- Episode 3900.0: -64.74, epsilon: 0.61
+- Episode 3950.0: -60.39, epsilon: 0.60
+- Episode 4000.0: -61.80, epsilon: 0.60
+- Episode 4050.0: -59.80, epsilon: 0.59
+- Episode 4100.0: -52.90, epsilon: 0.59
+- Episode 4150.0: -63.92, epsilon: 0.58
+- Episode 4200.0: -44.78, epsilon: 0.58
+- Episode 4250.0: -40.11, epsilon: 0.57
+- Episode 4300.0: -48.74, epsilon: 0.57
+- Episode 4350.0: -60.92, epsilon: 0.56
+- Episode 4400.0: -48.79, epsilon: 0.56
+- Episode 4450.0: -40.28, epsilon: 0.55
+- Episode 4500.0: -56.89, epsilon: 0.55
+- Episode 4550.0: -49.86, epsilon: 0.54
+- Episode 4600.0: -47.27, epsilon: 0.54
+- Episode 4650.0: -43.52, epsilon: 0.53
+- Episode 4700.0: -42.18, epsilon: 0.53
+- Episode 4750.0: -46.55, epsilon: 0.52
+- Episode 4800.0: -40.93, epsilon: 0.52
+- Episode 4850.0: -39.18, epsilon: 0.51
+- Episode 4900.0: -54.26, epsilon: 0.51
+- Episode 4950.0: -42.23, epsilon: 0.50
+#================
+

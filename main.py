@@ -11,6 +11,14 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 
+#normalisation constants
+MAX_X = 2.5
+MAX_Y = 2.5
+MAX_VELOCITY_X = 10.
+MAX_VELOCITY_Y = 10.
+MAX_ANGLE = 6.2831855
+MAX_ANGULAR_VELOCITY = 10.
+
 
 #constants
 NUMBER_OF_EPISODES = 5000
@@ -240,6 +248,17 @@ def reportResults(episode_list, mean_list, epsilon_list):
         file.write("#================\n\n")
 
 
+def normalise_observation(obs):
+    obs[0] = obs[0]/MAX_X
+    obs[1] = obs[1]/MAX_Y
+    obs[2] = obs[2]/MAX_VELOCITY_X
+    obs[3] = obs[3]/MAX_VELOCITY_Y
+    obs[4] = obs[4]/MAX_ANGLE
+    obs[5] = obs[5]/MAX_ANGULAR_VELOCITY
+    return obs
+    
+
+
 #main loop of training in the enviroment
 def training():
     lastrewards = []
@@ -247,10 +266,14 @@ def training():
     number_of_episode = []
     epsilon_list = []
     epsilon = INITIAL_EPSILON
+
+
     for episode in range(NUMBER_OF_EPISODES):
-        if episode % 20 == 0:
+        if episode % 10 == 0:
             print("episode: ", episode)
         obs, info = env.reset()             #starting state
+        obs = normalise_observation(obs)
+
         episode_ended = False
         total_reward = 0
         steps = 0
@@ -261,22 +284,16 @@ def training():
             target_model.load_state_dict(learning_model.state_dict())
 
         while not episode_ended:
-            #turning observation into tensor #TODO: this could be inside epsilon function perhaps?
+            
             action = epsilon_greedy_action(torch.tensor(obs), epsilon)
             
             next_obs, reward, terminated, truncated, info = env.step(action)    #take the next step
+            next_obs = normalise_observation(next_obs)
             episode_ended = terminated or truncated                                      #check if crashed or truncuated
 
             buffer.add(obs, action, next_obs, reward, episode_ended)
-            #buffer.printBuffer()
-            
-            if DEBUG:
-                #buffer.printBuffer
-                #return 1
-                pass
 
             #training step
-            #print("debug [training() before modellearning()]: buffer.buffer lenght: ", len(buffer.buffer), "buffer.buffermaxsize: ", buffer.buffermaxsize )
             if len(buffer.buffer) > ((TRAINING_BATCH_SIZE * 2)+ 1):
                  modelLearning()
                  
