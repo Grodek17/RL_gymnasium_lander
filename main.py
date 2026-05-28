@@ -6,31 +6,34 @@
 # test one transiton overfit, if training on one record will make it fitting
 # test if model learning is actually happening
 # do something to make it faster
+# create matplotlibs before any other enchancements of NN
 import gymnasium
 import random
 import torch 
 import torch.nn as nn
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
 
 #constants
-NUMBER_OF_EPISODES = 3000
+NUMBER_OF_EPISODES = 200
 BUFFER_SIZE = 3000
 DEBUG = False
 TEMP_DEBUG = False
 TRAINING_BATCH_SIZE = 64
 LAST_REWARDS_SIZE = 50
-
+MEMO = "basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning"
 
 #hyperparameters of Q learning
 ALPHA = 0.1         #learning rate
 GAMMA = 0.99        #"importance of future"
 INITIAL_EPSILON = 0.999       #random move probability
 MINIMAL_EPSILON = 0.1
-Q = {}
+lrate = 0.001
 
 ''' CLASSES '''
+# Artificial neural network made in pyTorch, used in DQN
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super().__init__()
@@ -47,15 +50,17 @@ class NeuralNetwork(nn.Module):
         x = self.last(x)
         return x
     
+
 #class for storing states of the enviroment, for training the neural network
 class ExperienceBuffer():
     def __init__(self, max_size):
-        self.buffersize = max_size
+        self.buffermaxsize = max_size
         self.buffer = []
 
-    #arguments passed as tensors
+
+    #arguments passed as arrays and int's, not always used in batch -> no need to transform (improved time efficiency)
     def add(self, observation, action, next_observation, reward, done):
-        if(len(self.buffer) > self.buffersize):
+        if(len(self.buffer) > self.buffermaxsize):
             if DEBUG:
                 #print("List approached full capacity, removing oldest record")
                 pass
@@ -63,23 +68,25 @@ class ExperienceBuffer():
         
         self.buffer.append((observation, action, next_observation, reward, done))
 
+
     #provides batch of separate vectors of each attribute, used in later computing
     def giveRandomBatch(self, batch_size):
         if DEBUG:
             print("selecting batch_size random entries from list")
 
         if len(self.buffer) < (TRAINING_BATCH_SIZE * 2):
-            raise ValueError("Buffer not full, cannot give random batch", len(self.buffer), "<- buffer lenght | full size (-5) -> ", (self.buffersize - 5))
+            raise ValueError("Buffer not full, cannot give random batch", len(self.buffer), "<- buffer lenght | full size (-5) -> ", (self.buffermaxsize - 5))
 
+        #later could start as numpy arrays, faster computation perhaps?
         packed_observations = []
         packed_actions = []
         packed_nexts = []
         packed_reward = []
         packed_dones = []
 
-        rangex = len(self.buffer)
+        currentbufferlen = len(self.buffer)
         for x in range(batch_size):
-            index = random.randint(0, (rangex - 1))
+            index = random.randint(0, (currentbufferlen - 1))
             packed_observations.append(self.buffer[index][0])
             packed_actions.append(self.buffer[index][1])
             packed_nexts.append(self.buffer[index][2])
@@ -93,21 +100,17 @@ class ExperienceBuffer():
         packed_reward = np.array(packed_reward, dtype=np.float32)
         packed_dones = np.array(packed_dones, dtype=np.float32)
 
-        #turning into tensors (tutaj zamiana z torch.tensor(x) na torch.from_numpy(x)??)
+        #turning into tensors 
         packed_observations = torch.from_numpy(packed_observations)
         packed_actions = torch.from_numpy(packed_actions)
         packed_nexts = torch.from_numpy(packed_nexts)
         packed_reward = torch.from_numpy(packed_reward)
         packed_dones = torch.from_numpy(packed_dones)
 
-        if TEMP_DEBUG:
+        if DEBUG:
             print(packed_observations.shape, packed_observations.dtype)
-            print(packed_actions.shape, packed_actions.dtype)
-            print(packed_nexts.shape, packed_nexts.dtype)
-            print(packed_reward.shape, packed_reward.dtype)
-            print(packed_dones.shape, packed_dones.dtype)
             print("============================= END ====================")
-            raise ValueError("debug new converion")
+            #raise ValueError("debug new converion")
             
         
         return packed_observations, packed_actions, packed_nexts, packed_reward, packed_dones
@@ -118,17 +121,11 @@ class ExperienceBuffer():
         for x in range(len(self.buffer)):
             print(x, ": ", self.buffer[x])
 
-
-lrate = 0.001
+''' CLASSES INITIALISATION '''
 model = NeuralNetwork()
 buffer = ExperienceBuffer(BUFFER_SIZE)
-#ready loss and backpropagating functions
-#loss_fn = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=lrate)
-
-env = gymnasium.make("LunarLander-v3", continuous=False, gravity=-10.0,
-               enable_wind=False, wind_power=15.0, turbulence_power=0.5)
-
+env = gymnasium.make("LunarLander-v3", continuous=False, gravity=-10.0, enable_wind=False, wind_power=15.0, turbulence_power=0.5)
 
 
 
@@ -136,6 +133,7 @@ env = gymnasium.make("LunarLander-v3", continuous=False, gravity=-10.0,
 
 #decides action for agent, either random or NN based.
 #takes tensor and int as inputs, returns integer (action code)
+
 def epsilon_greedy_action(x, epsilon):
     chance = random.random()
 
@@ -156,41 +154,23 @@ def epsilon_greedy_action(x, epsilon):
 
 def modelLearning():
     #print("model learning activated")
-    startbatch = time.perf_counter()
     obs, actions, nexts, rewards, dones = buffer.giveRandomBatch(TRAINING_BATCH_SIZE)
-    endbatch = time.perf_counter()
-    print("batchtime:", endbatch - startbatch, "s")
     Qvalues = model(obs)
     unsqueezed_actions = actions.unsqueeze(1)
     Qsa = Qvalues.gather(1, unsqueezed_actions).squeeze(1)
-
 
     with torch.no_grad():
         nextQs = model(nexts)
         best_moves = nextQs.max(dim = 1).values
 
-
-    
-    #print("nextQs: ", nextQs)
-    #print("Choosen Q: ", best_moves)
     target = rewards + GAMMA * (1 - dones) * best_moves
 
     #MSE
     loss = ((Qsa - target)**2).mean()
-    '''
-    print("== target debug ==")
-    print("target shape: ", target.shape)
-    print("Qsa shape: ", Qsa.shape)
-    print("loss shape: ", loss.shape)
-    print("loss: ", loss)
-    raise ValueError("checkking if loss is proper")
-    '''
+
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-
-
-
 
     '''
     print("== target debug ==")
@@ -204,8 +184,54 @@ def modelLearning():
     print("dones", dones)
     print("best: ", best_moves)
     print("equals target: ", target)
+
+     print("== target debug ==")
+    print("target shape: ", target.shape)
+    print("Qsa shape: ", Qsa.shape)
+    print("loss shape: ", loss.shape)
+    print("loss: ", loss)
+    raise ValueError("checkking if loss is proper")
+
+    #print("nextQs: ", nextQs)
+    #print("Choosen Q: ", best_moves)
     '''
     
+def reportResults(episode_list, mean_list):
+    print("please give name of the plot title:")
+    name = input()
+    print("please give name of the plot file:")
+    filename = input()
+
+    ''' PLOT '''
+    plt.plot(episode_list, mean_list, marker="o")
+    plt.xlabel("Episode")
+    plt.ylabel(f"mean reward of last {LAST_REWARDS_SIZE} episodes")
+    plt.title(name)
+    plt.grid(True)
+    plt.savefig(filename + ".png")
+    plt.show()
+
+    ''' MARKDOWN UPDATE '''
+    print("Write title of report section in markdown file: ")
+    title = input()
+    print("please write note about this specific training: ")
+    note = input()
+    with open("report_data.md", "a", encoding="utf-8") as file:
+        file.write(f"#=== REPORT: {title} ===\n\n")
+        file.write(f"note: {note}\n")
+        file.write(f"memo: {MEMO}\n")
+        file.write(f"Number of episodes: {NUMBER_OF_EPISODES}\n")
+        file.write(f"Buffer size: {BUFFER_SIZE}\n")
+        file.write(f"Batch size: {TRAINING_BATCH_SIZE}\n")
+        file.write(f"Gamma: {GAMMA}\n")
+        file.write(f"Learning rate: {lrate}\n\n")
+
+        file.write("## Mean rewards\n\n")
+
+        for episode, reward in zip(episode_list, mean_list):
+            file.write(f"- Episode {episode}: {reward:.2f}\n")
+        file.write("#================\n\n")
+
 
 #main loop of training in the enviroment
 def training():
@@ -214,7 +240,7 @@ def training():
     number_of_episode = []
     epsilon = INITIAL_EPSILON
     for episode in range(NUMBER_OF_EPISODES):
-        if episode % 10 == 0:
+        if episode % 20 == 0:
             print("episode: ", episode)
         obs, info = env.reset()             #starting state
         episode_ended = False
@@ -222,7 +248,6 @@ def training():
         steps = 0
         epsilon = max((epsilon - 0.0001), MINIMAL_EPSILON)
 
-        startepisode = time.perf_counter()
         while not episode_ended:
             #turning observation into tensor #TODO: this could be inside epsilon function perhaps?
             action = epsilon_greedy_action(torch.tensor(obs), epsilon)
@@ -239,41 +264,32 @@ def training():
                 pass
 
             #training step
-            #print("debug [training() before modellearning()]: buffer.buffer lenght: ", len(buffer.buffer), "buffer.buffersize: ", buffer.buffersize )
+            #print("debug [training() before modellearning()]: buffer.buffer lenght: ", len(buffer.buffer), "buffer.buffermaxsize: ", buffer.buffermaxsize )
             if len(buffer.buffer) > ((TRAINING_BATCH_SIZE * 2)+ 1):
-                 startlearning = time.perf_counter()
                  modelLearning()
-                 endelearning = time.perf_counter()
-                 print("episodetime:", endelearning - startlearning, "s")
-             #    print(".")
                  
-            
 
             obs = next_obs                                                          #next step becomes initial step
-
-        
             total_reward += reward                                                  #sum rewards
             steps += 1          
             if(terminated or truncated):
-                #print("episode: ", episode, " total reward: ", total_reward) 
 
                 #updating the episode reward buffer
                 if len(lastrewards) > LAST_REWARDS_SIZE:
                     lastrewards.pop(0)
                 lastrewards.append(total_reward)
-
                 if episode % 50 == 0:
                     meanlastreward = sum(lastrewards)/float(len(lastrewards))
-                    mean_rewards.append(meanlastreward)
-                    number_of_episode.append(episode)
+                    mean_rewards.append(float(meanlastreward))
+                    number_of_episode.append(float(episode))
 
-                    print("[D]: (epsilon: ", epsilon, ") episode: ", number_of_episode[-1], " mean 50 rewards: ", mean_rewards[-1])
-            endepisode = time.perf_counter()
-            print("episodetime:", endepisode - startepisode, "s")
+                    print("[D]: (epsilon: ", epsilon, ") episode: ", number_of_episode[-1], " mean ", LAST_REWARDS_SIZE ," rewards: ", mean_rewards[-1])
+            
 
 
     env.close()  
     print("mean rewards: ", mean_rewards)
+    reportResults(number_of_episode, mean_rewards)
 
 
 def main():
