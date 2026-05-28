@@ -1,3 +1,9 @@
+# to check:
+# is leaarning working correctly -> print + manual calculation of small batch (e.g) 3 Q(s,a) and target
+# is Q(s,a) taking proper actions
+# check if target is calculated without gradient
+# check if optimizer changes weights
+# test one transiton overfit, if training on one record will make it fitting
 import gymnasium
 import random
 import torch 
@@ -5,10 +11,11 @@ import torch.nn as nn
 
 
 #constants
-NUMBER_OF_EPISODES = 5000
-BUFFER_SIZE = 1000
+NUMBER_OF_EPISODES = 11000
+BUFFER_SIZE = 3000
 DEBUG = False
 TRAINING_BATCH_SIZE = 64
+LAST_REWARDS_SIZE = 50
 
 
 #hyperparameters of Q learning
@@ -175,13 +182,16 @@ def modelLearning():
 
 #main loop of training in the enviroment
 def training():
+    lastrewards = []
+    mean_rewards = []
+    number_of_episode = []
     epsilon = INITIAL_EPSILON
     for episode in range(NUMBER_OF_EPISODES):
         obs, info = env.reset()             #starting state
         episode_ended = False
         total_reward = 0
         steps = 0
-        epsilon = max((epsilon * 0.999), MINIMAL_EPSILON)
+        epsilon = max((epsilon - 0.0001), MINIMAL_EPSILON)
 
         while not episode_ended:
             obs_tensor = torch.tensor(obs)      #turning observation into tensor #TODO: this could be inside epsilon function perhaps?
@@ -208,9 +218,23 @@ def training():
             total_reward += reward                                                  #sum rewards
             steps += 1          
             if(terminated or truncated):
-                print("episode: ", episode, " total reward: ", total_reward)                                                    #sum steps
+                #print("episode: ", episode, " total reward: ", total_reward) 
+
+                #updating the episode reward buffer
+                if len(lastrewards) > LAST_REWARDS_SIZE:
+                    lastrewards.pop(0)
+                lastrewards.append(total_reward)
+
+                if episode % 1000 == 0:
+                    meanlastreward = sum(lastrewards)/float(len(lastrewards))
+                    mean_rewards.append(meanlastreward)
+                    number_of_episode.append(episode)
+
+                    print("[D]: (epsilon: ", epsilon, ") episode: ", number_of_episode[-1], " mean 50 rewards: ", mean_rewards[-1])
+
 
     env.close()  
+    print("mean rewards: ", mean_rewards)
 
 
 def main():
