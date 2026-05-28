@@ -17,13 +17,15 @@ import matplotlib.pyplot as plt
 
 
 #constants
-NUMBER_OF_EPISODES = 200
+NUMBER_OF_EPISODES = 5000
 BUFFER_SIZE = 3000
 DEBUG = False
 TEMP_DEBUG = False
 TRAINING_BATCH_SIZE = 64
 LAST_REWARDS_SIZE = 50
 MEMO = "basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning"
+NN_LAYOUT = "8->64->RELU->64->RELU->4 (two hidden layers of 64 neurons, ReLU activation function, MSE loss function)"
+
 
 #hyperparameters of Q learning
 ALPHA = 0.1         #learning rate
@@ -196,7 +198,7 @@ def modelLearning():
     #print("Choosen Q: ", best_moves)
     '''
     
-def reportResults(episode_list, mean_list):
+def reportResults(episode_list, mean_list, epsilon_list):
     print("please give name of the plot title:")
     name = input()
     print("please give name of the plot file:")
@@ -220,6 +222,7 @@ def reportResults(episode_list, mean_list):
         file.write(f"#=== REPORT: {title} ===\n\n")
         file.write(f"note: {note}\n")
         file.write(f"memo: {MEMO}\n")
+        file.write(f"NN Layout: {NN_LAYOUT}\n")
         file.write(f"Number of episodes: {NUMBER_OF_EPISODES}\n")
         file.write(f"Buffer size: {BUFFER_SIZE}\n")
         file.write(f"Batch size: {TRAINING_BATCH_SIZE}\n")
@@ -228,8 +231,8 @@ def reportResults(episode_list, mean_list):
 
         file.write("## Mean rewards\n\n")
 
-        for episode, reward in zip(episode_list, mean_list):
-            file.write(f"- Episode {episode}: {reward:.2f}\n")
+        for episode, reward, epsilon in zip(episode_list, mean_list, epsilon_list):
+            file.write(f"- Episode {episode}: {reward:.2f}, epsilon: {epsilon:.2f}\n")
         file.write("#================\n\n")
 
 
@@ -238,6 +241,7 @@ def training():
     lastrewards = []
     mean_rewards = []
     number_of_episode = []
+    epsilon_list = []
     epsilon = INITIAL_EPSILON
     for episode in range(NUMBER_OF_EPISODES):
         if episode % 20 == 0:
@@ -282,6 +286,7 @@ def training():
                     meanlastreward = sum(lastrewards)/float(len(lastrewards))
                     mean_rewards.append(float(meanlastreward))
                     number_of_episode.append(float(episode))
+                    epsilon_list.append(float(epsilon))
 
                     print("[D]: (epsilon: ", epsilon, ") episode: ", number_of_episode[-1], " mean ", LAST_REWARDS_SIZE ," rewards: ", mean_rewards[-1])
             
@@ -289,7 +294,7 @@ def training():
 
     env.close()  
     print("mean rewards: ", mean_rewards)
-    reportResults(number_of_episode, mean_rewards)
+    reportResults(number_of_episode, mean_rewards, epsilon_list)
 
 
 def main():
