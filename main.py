@@ -1,6 +1,5 @@
 # to check:
-# is leaarning working correctly -> print + manual calculation of small batch (e.g) 3 Q(s,a) and target
-# is Q(s,a) taking proper actions
+# [checked] corectness of target and loss calculation
 # check if target is calculated without gradient
 # check if optimizer changes weights
 # test one transiton overfit, if training on one record will make it fitting
@@ -25,6 +24,7 @@ TRAINING_BATCH_SIZE = 64
 LAST_REWARDS_SIZE = 50
 MEMO = "basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning"
 NN_LAYOUT = "8->64->RELU->64->RELU->4 (two hidden layers of 64 neurons, ReLU activation function, MSE loss function)"
+REPORT = False #should training be written into log
 
 
 #hyperparameters of Q learning
@@ -157,19 +157,22 @@ def epsilon_greedy_action(x, epsilon):
 def modelLearning():
     #print("model learning activated")
     obs, actions, nexts, rewards, dones = buffer.giveRandomBatch(TRAINING_BATCH_SIZE)
+
+    
     Qvalues = model(obs)
     unsqueezed_actions = actions.unsqueeze(1)
     Qsa = Qvalues.gather(1, unsqueezed_actions).squeeze(1)
-
+    
     with torch.no_grad():
         nextQs = model(nexts)
         best_moves = nextQs.max(dim = 1).values
+          
 
     target = rewards + GAMMA * (1 - dones) * best_moves
 
     #MSE
     loss = ((Qsa - target)**2).mean()
-
+        
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
@@ -271,6 +274,7 @@ def training():
             #print("debug [training() before modellearning()]: buffer.buffer lenght: ", len(buffer.buffer), "buffer.buffermaxsize: ", buffer.buffermaxsize )
             if len(buffer.buffer) > ((TRAINING_BATCH_SIZE * 2)+ 1):
                  modelLearning()
+                 raise ValueError("Random batch given [REMOVE AFTER TEST]")
                  
 
             obs = next_obs                                                          #next step becomes initial step
@@ -294,11 +298,13 @@ def training():
 
     env.close()  
     print("mean rewards: ", mean_rewards)
-    reportResults(number_of_episode, mean_rewards, epsilon_list)
+    if REPORT:
+        reportResults(number_of_episode, mean_rewards, epsilon_list)
 
 
 def main():
-    training()
+    modelLearning()
+    #training()
     #buffer.printBuffer()
     #print("ilosc rekordow:",len(buffer.buffer))
     #buffer.giveRandomBatch(11)
