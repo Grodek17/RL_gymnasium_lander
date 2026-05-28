@@ -21,7 +21,7 @@ TRAINING_BATCH_SIZE = 64
 LAST_REWARDS_SIZE = 50
 MEMO = "basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning"
 NN_LAYOUT = "8->64->RELU->64->RELU->4 (two hidden layers of 64 neurons, ReLU activation function, MSE loss function)"
-REPORT = False #should training be written into log
+REPORT = True #should training be written into log
 
 
 #hyperparameters of Q learning
@@ -307,8 +307,8 @@ def training():
 
 
 def main():
-    modelLearning()
-    #training()
+    #modelLearning()
+    training()
     #buffer.printBuffer()
     #print("ilosc rekordow:",len(buffer.buffer))
     #buffer.giveRandomBatch(11)
