@@ -20,7 +20,7 @@ from ExperienceBufferClass import ExperienceBuffer
 from constants import (MAX_X, MAX_Y, MAX_VELOCITY_X, MAX_VELOCITY_Y,
                        MAX_ANGLE, MAX_ANGULAR_VELOCITY, NUMBER_OF_EPISODES,
                        BUFFER_SIZE, DEBUG, TEMP_DEBUG, TRAINING_BATCH_SIZE,
-                       LAST_REWARDS_SIZE, MEMO, NN_LAYOUT, REPORT, ALPHA, GAMMA,
+                       LAST_REWARDS_SIZE, ALPHA, GAMMA, UPDATE_TARGET_EACH_STEPS,
                        INITIAL_EPSILON, MINIMAL_EPSILON ,LEARNING_RATE)
 
 ''' CLASSES INITIALISATION '''
@@ -123,8 +123,6 @@ def reportResults(episode_list, mean_list, epsilon_list):
     with open("report_data.md", "a", encoding="utf-8") as file:
         file.write(f"#=== REPORT: {title} ===\n\n")
         file.write(f"note: {note}\n")
-        file.write(f"memo: {MEMO}\n")
-        file.write(f"NN Layout: {NN_LAYOUT}\n")
         file.write(f"Number of episodes: {NUMBER_OF_EPISODES}\n")
         file.write(f"Buffer size: {BUFFER_SIZE}\n")
         file.write(f"Batch size: {TRAINING_BATCH_SIZE}\n")
@@ -144,24 +142,27 @@ def training():
     number_of_episode = []
     epsilon_list = []
     epsilon = INITIAL_EPSILON
+    global_step = 0
 
 
     for episode in range(NUMBER_OF_EPISODES):
-        if episode % 10 == 0:
-            print("episode: ", episode)
+        #if episode % 10 == 0:
+         #   print("episode: ", episode)
+
+        if episode % 1000 == 0:
+            episode_start_time = time.perf_counter()
         obs, info = env.reset()             #starting state
         obs = normalise_observation(obs)
 
+        episode_steps = 0
         episode_ended = False
         total_reward = 0
-        steps = 0
-        epsilon = max((epsilon - 0.0001), MINIMAL_EPSILON)
-
-        #updating target model:
-        if episode % 100 == 0:
-            target_model.load_state_dict(learning_model.state_dict())
+        epsilon = max((epsilon - 0.00016), MINIMAL_EPSILON)
 
         while not episode_ended:
+            if episode_steps == 0 and episode % 1000 == 0:
+                #print("registered step start")
+                step_start_time = time.perf_counter()
             
             action = epsilon_greedy_action(torch.tensor(obs), epsilon)
             
@@ -177,8 +178,15 @@ def training():
                  
 
             obs = next_obs                                                          #next step becomes initial step
-            total_reward += reward                                                  #sum rewards
-            steps += 1          
+            total_reward += reward                                                  #sum rewards     
+            global_step += 1
+            
+
+            #updating target model:
+            if global_step >= UPDATE_TARGET_EACH_STEPS:
+                target_model.load_state_dict(learning_model.state_dict())
+                global_step = 0
+
             if(terminated or truncated):
 
                 #updating the episode reward buffer
@@ -190,15 +198,25 @@ def training():
                     mean_rewards.append(float(meanlastreward))
                     number_of_episode.append(float(episode))
                     epsilon_list.append(float(epsilon))
+                    print("Episode: ", number_of_episode[-1], " | mean rewards: ", mean_rewards[-1], " | epsilon: ", epsilon, " |")
 
-                    print("[D]: (epsilon: ", epsilon, ") episode: ", number_of_episode[-1], " mean ", LAST_REWARDS_SIZE ," rewards: ", mean_rewards[-1])
+
+            if episode_steps == 0 and episode % 1000 == 0:
+                #print("registered step stop")
+                step_end_time = time.perf_counter()
+            episode_steps += 1
+
+       
+        if episode % 1000 == 0:
+            episode_end_time = time.perf_counter()
+            print("episode ", episode, " time: ", episode_end_time - episode_start_time, "s 1st step time: ", step_end_time - step_start_time, "s")
             
 
 
     env.close()  
     print("mean rewards: ", mean_rewards)
-    if REPORT:
-        reportResults(number_of_episode, mean_rewards, epsilon_list)
+    
+    reportResults(number_of_episode, mean_rewards, epsilon_list)
 
 
 def main():
