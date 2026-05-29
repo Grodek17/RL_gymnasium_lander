@@ -1,11 +1,9 @@
 # to check:
+#todo [optimalisation] better data type than list for experiences (pop.(0) is expensive)
 # [checked] corectness of target and loss calculation
 # check if target is calculated without gradient
 # check if optimizer changes weights
-# test one transiton overfit, if training on one record will make it fitting
-# test if model learning is actually happening
-# do something to make it faster
-# create matplotlibs before any other enchancements of NN
+# [checked] single observation learning
 import gymnasium
 import random
 import torch 
@@ -14,9 +12,17 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 
+#normalisation constants
+MAX_X = 2.5
+MAX_Y = 2.5
+MAX_VELOCITY_X = 10.
+MAX_VELOCITY_Y = 10.
+MAX_ANGLE = 6.2831855
+MAX_ANGULAR_VELOCITY = 10.
+
 
 #constants
-NUMBER_OF_EPISODES = 5000
+NUMBER_OF_EPISODES = 11000
 BUFFER_SIZE = 3000
 DEBUG = False
 TEMP_DEBUG = False
@@ -24,7 +30,7 @@ TRAINING_BATCH_SIZE = 64
 LAST_REWARDS_SIZE = 50
 MEMO = "basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning"
 NN_LAYOUT = "8->64->RELU->64->RELU->4 (two hidden layers of 64 neurons, ReLU activation function, MSE loss function)"
-REPORT = False #should training be written into log
+REPORT = True #should training be written into log
 
 
 #hyperparameters of Q learning
@@ -124,9 +130,13 @@ class ExperienceBuffer():
             print(x, ": ", self.buffer[x])
 
 ''' CLASSES INITIALISATION '''
-model = NeuralNetwork()
+learning_model = NeuralNetwork()
+target_model = NeuralNetwork()
+target_model.load_state_dict(learning_model.state_dict())
+
+
 buffer = ExperienceBuffer(BUFFER_SIZE)
-optimizer = torch.optim.Adam(model.parameters(), lr=lrate)
+optimizer = torch.optim.Adam(learning_model.parameters(), lr=lrate)
 env = gymnasium.make("LunarLander-v3", continuous=False, gravity=-10.0, enable_wind=False, wind_power=15.0, turbulence_power=0.5)
 
 
@@ -146,7 +156,7 @@ def epsilon_greedy_action(x, epsilon):
             pass
     else:
         with torch.no_grad():               
-            qvalues = model(x)
+            qvalues = learning_model(x)
             action = torch.argmax(qvalues).item()
         if DEBUG:
             #print("Model determined: qValues: ", qvalues, " action: ", action)
@@ -159,12 +169,12 @@ def modelLearning():
     obs, actions, nexts, rewards, dones = buffer.giveRandomBatch(TRAINING_BATCH_SIZE)
 
     
-    Qvalues = model(obs)
+    Qvalues = learning_model(obs)
     unsqueezed_actions = actions.unsqueeze(1)
     Qsa = Qvalues.gather(1, unsqueezed_actions).squeeze(1)
     
     with torch.no_grad():
-        nextQs = model(nexts)
+        nextQs = target_model(nexts)
         best_moves = nextQs.max(dim = 1).values
           
 
@@ -239,6 +249,17 @@ def reportResults(episode_list, mean_list, epsilon_list):
         file.write("#================\n\n")
 
 
+def normalise_observation(obs):
+    obs[0] = obs[0]/MAX_X
+    obs[1] = obs[1]/MAX_Y
+    obs[2] = obs[2]/MAX_VELOCITY_X
+    obs[3] = obs[3]/MAX_VELOCITY_Y
+    obs[4] = obs[4]/MAX_ANGLE
+    obs[5] = obs[5]/MAX_ANGULAR_VELOCITY
+    return obs
+    
+
+
 #main loop of training in the enviroment
 def training():
     lastrewards = []
@@ -246,35 +267,36 @@ def training():
     number_of_episode = []
     epsilon_list = []
     epsilon = INITIAL_EPSILON
+
+
     for episode in range(NUMBER_OF_EPISODES):
-        if episode % 20 == 0:
+        if episode % 10 == 0:
             print("episode: ", episode)
         obs, info = env.reset()             #starting state
+        obs = normalise_observation(obs)
+
         episode_ended = False
         total_reward = 0
         steps = 0
         epsilon = max((epsilon - 0.0001), MINIMAL_EPSILON)
 
+        #updating target model:
+        if episode % 100 == 0:
+            target_model.load_state_dict(learning_model.state_dict())
+
         while not episode_ended:
-            #turning observation into tensor #TODO: this could be inside epsilon function perhaps?
+            
             action = epsilon_greedy_action(torch.tensor(obs), epsilon)
             
             next_obs, reward, terminated, truncated, info = env.step(action)    #take the next step
+            next_obs = normalise_observation(next_obs)
             episode_ended = terminated or truncated                                      #check if crashed or truncuated
 
             buffer.add(obs, action, next_obs, reward, episode_ended)
-            #buffer.printBuffer()
-            
-            if DEBUG:
-                #buffer.printBuffer
-                #return 1
-                pass
 
             #training step
-            #print("debug [training() before modellearning()]: buffer.buffer lenght: ", len(buffer.buffer), "buffer.buffermaxsize: ", buffer.buffermaxsize )
             if len(buffer.buffer) > ((TRAINING_BATCH_SIZE * 2)+ 1):
                  modelLearning()
-                 raise ValueError("Random batch given [REMOVE AFTER TEST]")
                  
 
             obs = next_obs                                                          #next step becomes initial step
@@ -303,8 +325,8 @@ def training():
 
 
 def main():
-    modelLearning()
-    #training()
+    #modelLearning()
+    training()
     #buffer.printBuffer()
     #print("ilosc rekordow:",len(buffer.buffer))
     #buffer.giveRandomBatch(11)
