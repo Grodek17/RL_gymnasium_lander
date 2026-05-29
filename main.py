@@ -29,7 +29,7 @@ MAX_ANGULAR_VELOCITY = 10.
 
 
 #constants
-NUMBER_OF_EPISODES = 11000
+NUMBER_OF_EPISODES = 200
 BUFFER_SIZE = 3000
 DEBUG = False
 TEMP_DEBUG = False
@@ -244,6 +244,13 @@ def modelLearning():
     '''
     
 def reportResults(episode_list, mean_list, epsilon_list):
+    while True:
+        print("save plot & report? [y/n]")
+        save = input()
+        if save == "y":
+            break
+        elif save == "n":
+            return
     print("please give name of the plot title:")
     name = input()
     print("please give name of the plot file:")
@@ -255,7 +262,7 @@ def reportResults(episode_list, mean_list, epsilon_list):
     plt.ylabel(f"mean reward of last {LAST_REWARDS_SIZE} episodes")
     plt.title(name)
     plt.grid(True)
-    plt.savefig(filename + ".png")
+    plt.savefig("plots/" + filename + ".png")
     plt.show()
 
     ''' MARKDOWN UPDATE '''
