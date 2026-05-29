@@ -280,6 +280,7 @@ def reportResults(episode_list, mean_list, epsilon_list):
         file.write(f"Batch size: {TRAINING_BATCH_SIZE}\n")
         file.write(f"Gamma: {GAMMA}\n")
         file.write(f"Learning rate: {lrate}\n\n")
+        file.write("![Training plot](plots/" + filename + ".png)\n\n")
 
         file.write("## Mean rewards\n\n")
 

@@ -652,3 +652,24 @@ Learning rate: 0.001
 - Episode 150.0: -150.22, epsilon: 0.98
 #================
 
+#=== REPORT: image_saving ===
+
+note: image saving in markdown test, to discard
+memo: basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning
+NN Layout: 8->64->RELU->64->RELU->4 (two hidden layers of 64 neurons, ReLU activation function, MSE loss function)
+Number of episodes: 200
+Buffer size: 3000
+Batch size: 64
+Gamma: 0.99
+Learning rate: 0.001
+
+![Training plot](plots/imgtst.png)
+
+## Mean rewards
+
+- Episode 0.0: -372.88, epsilon: 1.00
+- Episode 50.0: -182.14, epsilon: 0.99
+- Episode 100.0: -168.34, epsilon: 0.99
+- Episode 150.0: -204.63, epsilon: 0.98
+#================
+
