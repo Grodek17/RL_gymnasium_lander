@@ -1,9 +1,11 @@
-# to check:
-#todo [optimalisation] better data type than list for experiences (pop.(0) is expensive)
-# [checked] corectness of target and loss calculation
-# check if target is calculated without gradient
-# check if optimizer changes weights
-# [checked] single observation learning
+#todo
+# check episode and step lenght every 100 episodes
+# save model with best mean rewards in case learning "collapses"
+# save model in general
+# better NN initialisation, no magic numbers
+# bigger buffer
+# 
+
 import gymnasium
 import random
 import torch 
@@ -12,122 +14,14 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 
-#normalisation constants
-MAX_X = 2.5
-MAX_Y = 2.5
-MAX_VELOCITY_X = 10.
-MAX_VELOCITY_Y = 10.
-MAX_ANGLE = 6.2831855
-MAX_ANGULAR_VELOCITY = 10.
+from NeuralNetworkClass import NeuralNetwork
+from ExperienceBufferClass import ExperienceBuffer
 
-
-#constants
-NUMBER_OF_EPISODES = 11000
-BUFFER_SIZE = 3000
-DEBUG = False
-TEMP_DEBUG = False
-TRAINING_BATCH_SIZE = 64
-LAST_REWARDS_SIZE = 50
-MEMO = "basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning"
-NN_LAYOUT = "8->64->RELU->64->RELU->4 (two hidden layers of 64 neurons, ReLU activation function, MSE loss function)"
-REPORT = True #should training be written into log
-
-
-#hyperparameters of Q learning
-ALPHA = 0.1         #learning rate
-GAMMA = 0.99        #"importance of future"
-INITIAL_EPSILON = 0.999       #random move probability
-MINIMAL_EPSILON = 0.1
-lrate = 0.001
-
-''' CLASSES '''
-# Artificial neural network made in pyTorch, used in DQN
-class NeuralNetwork(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.first = nn.Linear(8,64)
-        self.ReLU = nn.ReLU()
-        self.second = nn.Linear(64, 64)
-        self.last = nn.Linear(64, 4)
-    
-    def forward(self, x):
-        x = self.first(x)
-        x = self.ReLU(x)
-        x = self.second(x)
-        x = self.ReLU(x)
-        x = self.last(x)
-        return x
-    
-
-#class for storing states of the enviroment, for training the neural network
-class ExperienceBuffer():
-    def __init__(self, max_size):
-        self.buffermaxsize = max_size
-        self.buffer = []
-
-
-    #arguments passed as arrays and int's, not always used in batch -> no need to transform (improved time efficiency)
-    def add(self, observation, action, next_observation, reward, done):
-        if(len(self.buffer) > self.buffermaxsize):
-            if DEBUG:
-                #print("List approached full capacity, removing oldest record")
-                pass
-            self.buffer.pop(0)
-        
-        self.buffer.append((observation, action, next_observation, reward, done))
-
-
-    #provides batch of separate vectors of each attribute, used in later computing
-    def giveRandomBatch(self, batch_size):
-        if DEBUG:
-            print("selecting batch_size random entries from list")
-
-        if len(self.buffer) < (TRAINING_BATCH_SIZE * 2):
-            raise ValueError("Buffer not full, cannot give random batch", len(self.buffer), "<- buffer lenght | full size (-5) -> ", (self.buffermaxsize - 5))
-
-        #later could start as numpy arrays, faster computation perhaps?
-        packed_observations = []
-        packed_actions = []
-        packed_nexts = []
-        packed_reward = []
-        packed_dones = []
-
-        currentbufferlen = len(self.buffer)
-        for x in range(batch_size):
-            index = random.randint(0, (currentbufferlen - 1))
-            packed_observations.append(self.buffer[index][0])
-            packed_actions.append(self.buffer[index][1])
-            packed_nexts.append(self.buffer[index][2])
-            packed_reward.append(float(self.buffer[index][3]))
-            packed_dones.append(float(self.buffer[index][4]))
-
-        #conversions to numpy arrays
-        packed_observations = np.array(packed_observations, dtype=np.float32)
-        packed_actions = np.array(packed_actions, dtype=np.int64)
-        packed_nexts = np.array(packed_nexts, dtype=np.float32)
-        packed_reward = np.array(packed_reward, dtype=np.float32)
-        packed_dones = np.array(packed_dones, dtype=np.float32)
-
-        #turning into tensors 
-        packed_observations = torch.from_numpy(packed_observations)
-        packed_actions = torch.from_numpy(packed_actions)
-        packed_nexts = torch.from_numpy(packed_nexts)
-        packed_reward = torch.from_numpy(packed_reward)
-        packed_dones = torch.from_numpy(packed_dones)
-
-        if DEBUG:
-            print(packed_observations.shape, packed_observations.dtype)
-            print("============================= END ====================")
-            #raise ValueError("debug new converion")
-            
-        
-        return packed_observations, packed_actions, packed_nexts, packed_reward, packed_dones
-
-    
-    def printBuffer(self):
-        print("=== PRINT STARTED ===")
-        for x in range(len(self.buffer)):
-            print(x, ": ", self.buffer[x])
+from constants import (MAX_X, MAX_Y, MAX_VELOCITY_X, MAX_VELOCITY_Y,
+                       MAX_ANGLE, MAX_ANGULAR_VELOCITY, NUMBER_OF_EPISODES,
+                       BUFFER_SIZE, DEBUG, TEMP_DEBUG, TRAINING_BATCH_SIZE,
+                       LAST_REWARDS_SIZE, MEMO, NN_LAYOUT, REPORT, ALPHA, GAMMA,
+                       INITIAL_EPSILON, MINIMAL_EPSILON ,LEARNING_RATE)
 
 ''' CLASSES INITIALISATION '''
 learning_model = NeuralNetwork()
@@ -136,16 +30,11 @@ target_model.load_state_dict(learning_model.state_dict())
 
 
 buffer = ExperienceBuffer(BUFFER_SIZE)
-optimizer = torch.optim.Adam(learning_model.parameters(), lr=lrate)
+optimizer = torch.optim.Adam(learning_model.parameters(), lr=LEARNING_RATE)
 env = gymnasium.make("LunarLander-v3", continuous=False, gravity=-10.0, enable_wind=False, wind_power=15.0, turbulence_power=0.5)
-
-
-
-
 
 #decides action for agent, either random or NN based.
 #takes tensor and int as inputs, returns integer (action code)
-
 def epsilon_greedy_action(x, epsilon):
     chance = random.random()
 
@@ -165,10 +54,10 @@ def epsilon_greedy_action(x, epsilon):
     return action
 
 def modelLearning():
-    #print("model learning activated")
+    #get random batch of experiences
     obs, actions, nexts, rewards, dones = buffer.giveRandomBatch(TRAINING_BATCH_SIZE)
 
-    
+    #calculate Q(s,a), target and loss
     Qvalues = learning_model(obs)
     unsqueezed_actions = actions.unsqueeze(1)
     Qsa = Qvalues.gather(1, unsqueezed_actions).squeeze(1)
@@ -177,12 +66,12 @@ def modelLearning():
         nextQs = target_model(nexts)
         best_moves = nextQs.max(dim = 1).values
           
-
     target = rewards + GAMMA * (1 - dones) * best_moves
 
     #MSE
     loss = ((Qsa - target)**2).mean()
-        
+
+    #pytorch learning functions    
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
@@ -190,28 +79,28 @@ def modelLearning():
     '''
     print("== target debug ==")
     print("target shape: ", target.shape)
-    print("rewards shape: ", rewards.shape)
-    print("dones shape: ", dones.shape)
-    print("best_moves shape: ", best_moves.shape)
-    print("=====")
-    print("rewards: ", rewards)
-    print("gamma", GAMMA)
-    print("dones", dones)
     print("best: ", best_moves)
     print("equals target: ", target)
-
-     print("== target debug ==")
-    print("target shape: ", target.shape)
-    print("Qsa shape: ", Qsa.shape)
-    print("loss shape: ", loss.shape)
-    print("loss: ", loss)
-    raise ValueError("checkking if loss is proper")
-
-    #print("nextQs: ", nextQs)
-    #print("Choosen Q: ", best_moves)
     '''
     
+def normalise_observation(obs):
+    obs[0] = obs[0]/MAX_X
+    obs[1] = obs[1]/MAX_Y
+    obs[2] = obs[2]/MAX_VELOCITY_X
+    obs[3] = obs[3]/MAX_VELOCITY_Y
+    obs[4] = obs[4]/MAX_ANGLE
+    obs[5] = obs[5]/MAX_ANGULAR_VELOCITY
+    return obs
+
 def reportResults(episode_list, mean_list, epsilon_list):
+    ''' ASKING TO SAVE '''
+    while True:
+        print("save plot & report? [y/n]")
+        save = input()
+        if save == "y":
+            break
+        elif save == "n":
+            return
     print("please give name of the plot title:")
     name = input()
     print("please give name of the plot file:")
@@ -223,7 +112,7 @@ def reportResults(episode_list, mean_list, epsilon_list):
     plt.ylabel(f"mean reward of last {LAST_REWARDS_SIZE} episodes")
     plt.title(name)
     plt.grid(True)
-    plt.savefig(filename + ".png")
+    plt.savefig("plots/" + filename + ".png")
     plt.show()
 
     ''' MARKDOWN UPDATE '''
@@ -240,25 +129,13 @@ def reportResults(episode_list, mean_list, epsilon_list):
         file.write(f"Buffer size: {BUFFER_SIZE}\n")
         file.write(f"Batch size: {TRAINING_BATCH_SIZE}\n")
         file.write(f"Gamma: {GAMMA}\n")
-        file.write(f"Learning rate: {lrate}\n\n")
-
+        file.write(f"Learning rate: {LEARNING_RATE}\n\n")
+        file.write("![Training plot](plots/" + filename + ".png)\n\n")
         file.write("## Mean rewards\n\n")
 
         for episode, reward, epsilon in zip(episode_list, mean_list, epsilon_list):
             file.write(f"- Episode {episode}: {reward:.2f}, epsilon: {epsilon:.2f}\n")
         file.write("#================\n\n")
-
-
-def normalise_observation(obs):
-    obs[0] = obs[0]/MAX_X
-    obs[1] = obs[1]/MAX_Y
-    obs[2] = obs[2]/MAX_VELOCITY_X
-    obs[3] = obs[3]/MAX_VELOCITY_Y
-    obs[4] = obs[4]/MAX_ANGLE
-    obs[5] = obs[5]/MAX_ANGULAR_VELOCITY
-    return obs
-    
-
 
 #main loop of training in the enviroment
 def training():
@@ -295,7 +172,7 @@ def training():
             buffer.add(obs, action, next_obs, reward, episode_ended)
 
             #training step
-            if len(buffer.buffer) > ((TRAINING_BATCH_SIZE * 2)+ 1):
+            if buffer.current_size > ((TRAINING_BATCH_SIZE * 2)+ 1):
                  modelLearning()
                  
 
@@ -325,15 +202,8 @@ def training():
 
 
 def main():
-    #modelLearning()
     training()
-    #buffer.printBuffer()
-    #print("ilosc rekordow:",len(buffer.buffer))
-    #buffer.giveRandomBatch(11)
-    #modelLearning()
     pass
-
-
 
 if __name__ == "__main__":
     main()
