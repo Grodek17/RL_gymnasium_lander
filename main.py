@@ -1,4 +1,5 @@
 # to check:
+#todo [optimalisation] better data type than list for experiences (pop.(0) is expensive)
 # [checked] corectness of target and loss calculation
 # check if target is calculated without gradient
 # check if optimizer changes weights
@@ -21,7 +22,7 @@ MAX_ANGULAR_VELOCITY = 10.
 
 
 #constants
-NUMBER_OF_EPISODES = 5000
+NUMBER_OF_EPISODES = 11000
 BUFFER_SIZE = 3000
 DEBUG = False
 TEMP_DEBUG = False
