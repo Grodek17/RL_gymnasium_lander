@@ -5,6 +5,9 @@
 # better NN initialisation, no magic numbers
 # bigger buffer
 # 
+# eval function
+# reading networks from file (possibly separate .py)
+# training functions as class
 
 import gymnasium
 import random
@@ -13,13 +16,14 @@ import torch.nn as nn
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+import copy
 
 from NeuralNetworkClass import NeuralNetwork
 from ExperienceBufferClass import ExperienceBuffer
 
 from constants import (MAX_X, MAX_Y, MAX_VELOCITY_X, MAX_VELOCITY_Y,
                        MAX_ANGLE, MAX_ANGULAR_VELOCITY, NUMBER_OF_EPISODES,
-                       BUFFER_SIZE, DEBUG, TEMP_DEBUG, TRAINING_BATCH_SIZE,
+                       BUFFER_SIZE, DEBUG, TEMP_DEBUG, TRAINING_BATCH_SIZE, FIRST_H_LAYER, SECOND_H_LAYER,
                        LAST_REWARDS_SIZE, ALPHA, GAMMA, UPDATE_TARGET_EACH_STEPS,
                        INITIAL_EPSILON, MINIMAL_EPSILON ,LEARNING_RATE)
 
@@ -92,7 +96,7 @@ def normalise_observation(obs):
     obs[5] = obs[5]/MAX_ANGULAR_VELOCITY
     return obs
 
-def reportResults(episode_list, mean_list, epsilon_list):
+def reportResults(episode_list, mean_list, epsilon_list, best_network):
     ''' ASKING TO SAVE '''
     while True:
         print("save plot & report? [y/n]")
@@ -105,6 +109,8 @@ def reportResults(episode_list, mean_list, epsilon_list):
     name = input()
     print("please give name of the plot file:")
     filename = input()
+    print("please give name of trained NN file: ")
+    networkfile_name = input()
 
     ''' PLOT '''
     plt.plot(episode_list, mean_list, marker="o")
@@ -115,6 +121,9 @@ def reportResults(episode_list, mean_list, epsilon_list):
     plt.savefig("plots/" + filename + ".png")
     plt.show()
 
+    ''' SAVING NN '''
+    torch.save(best_network, "trained_networks/"+ networkfile_name +".pth")
+
     ''' MARKDOWN UPDATE '''
     print("Write title of report section in markdown file: ")
     title = input()
@@ -123,9 +132,12 @@ def reportResults(episode_list, mean_list, epsilon_list):
     with open("report_data.md", "a", encoding="utf-8") as file:
         file.write(f"#=== REPORT: {title} ===\n\n")
         file.write(f"note: {note}\n")
+        file.write("---------------------\n")
         file.write(f"Number of episodes: {NUMBER_OF_EPISODES}\n")
         file.write(f"Buffer size: {BUFFER_SIZE}\n")
         file.write(f"Batch size: {TRAINING_BATCH_SIZE}\n")
+        file.write(f"First hidden layer size: {FIRST_H_LAYER}\n")
+        file.write(f"Second hidden layer: {SECOND_H_LAYER}\n")
         file.write(f"Gamma: {GAMMA}\n")
         file.write(f"Learning rate: {LEARNING_RATE}\n\n")
         file.write("![Training plot](plots/" + filename + ".png)\n\n")
@@ -143,6 +155,7 @@ def training():
     epsilon_list = []
     epsilon = INITIAL_EPSILON
     global_step = 0
+    best_reward = -999999
 
 
     for episode in range(NUMBER_OF_EPISODES):
@@ -200,6 +213,13 @@ def training():
                     epsilon_list.append(float(epsilon))
                     print("Episode: ", number_of_episode[-1], " | mean rewards: ", mean_rewards[-1], " | epsilon: ", epsilon, " |")
 
+                    ###saving the best performing model
+                    if meanlastreward > best_reward:
+                        print("last best: ", best_reward, " current_best: ", meanlastreward, " saving...")
+                        best_model_state = copy.deepcopy(learning_model.state_dict())
+                        best_reward = meanlastreward
+                        
+
 
             if episode_steps == 0 and episode % 1000 == 0:
                 #print("registered step stop")
@@ -216,7 +236,7 @@ def training():
     env.close()  
     print("mean rewards: ", mean_rewards)
     
-    reportResults(number_of_episode, mean_rewards, epsilon_list)
+    reportResults(number_of_episode, mean_rewards, epsilon_list, best_model_state)
 
 
 def main():

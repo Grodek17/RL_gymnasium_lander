@@ -23,4 +23,6 @@ INITIAL_EPSILON = 0.9         #random move probability
 MINIMAL_EPSILON = 0.1
 LEARNING_RATE = 0.001       #move this into constants
 UPDATE_TARGET_EACH_STEPS = 1000
+FIRST_H_LAYER = 64
+SECOND_H_LAYER = 64
 
