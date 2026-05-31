@@ -1207,3 +1207,89 @@ Learning rate: 0.001
 - Episode 5500: 246.39, epsilon: 0.10
 
 
+#=== EVALUATION: 128_ReLU eval ===
+
+Evaluation date: 2026:06:01:00:13 
+
+random actions (random baseline)?: False
+network file name: trained_networks/128_ReLU.pth 
+Number of evaluation episodes: 10
+note: model performed very well, landing each time, even when was very thrown off at the beggining
+
+=== network details ===
+Input size: 8
+First hidden layer size: 128
+Second hidden layer: 128
+activation function: ReLU
+output size: 4
+network 'graph': 8 -> 128 -> ReLU -> 128 -> ReLU -> 4
+
+=== training details ===
+Number of training episodes: 6000
+Buffer size: 50000
+Batch size: 64
+Target network updated each 1000 steps 
+ 
+=== Q learning parameters ===
+Gamma: 0.99
+Initial epsilon: 0.9 
+Epsilon lowered each episode by 0.00016
+Minimal epsilon: 0.1 
+Learning rate: 0.001
+
+## Rewards
+277.68
+205.81
+266.70
+213.16
+247.04
+213.68
+274.73
+262.64
+205.34
+224.97
+
+
+#=== EVALUATION: 64_ReLU ===
+
+Evaluation date: 2026:06:01:00:15 
+
+random actions (random baseline)?: False
+network file name: trained_networks/64_relu_2nd.pth 
+Number of evaluation episodes: 10
+note: Model landed flawlessly between the poles each time, subjectively doing it more stylish than 128 neuron counterpart
+
+=== network details ===  
+Input size: 8  
+First hidden layer size: 64  
+Second hidden layer: 64  
+activation function: ReLU  
+output size: 4  
+network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4  
+
+=== training details ===
+Number of training episodes: 6000
+Buffer size: 50000
+Batch size: 64
+Target network updated each 1000 steps 
+ 
+=== Q learning parameters ===
+Gamma: 0.99
+Initial epsilon: 0.9 
+Epsilon lowered each episode by 0.00016
+Minimal epsilon: 0.1 
+Learning rate: 0.001
+
+## Rewards
+306.85
+270.25
+263.94
+265.54
+244.04
+266.60
+227.05
+278.00
+251.34
+258.41
+
+

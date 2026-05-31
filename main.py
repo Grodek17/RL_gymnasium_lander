@@ -253,8 +253,8 @@ def training():
 
 
 def main():
-    training()
-    #evaluation(10, "trained_networks/test_new_format_2.pth", random_baseline=False)
+    #training()
+    evaluation(10, "trained_networks/64_relu_2nd.pth", random_baseline=False)
     pass
 
 if __name__ == "__main__":
