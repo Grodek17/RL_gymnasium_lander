@@ -1259,13 +1259,13 @@ network file name: trained_networks/64_relu_2nd.pth
 Number of evaluation episodes: 10
 note: Model landed flawlessly between the poles each time, subjectively doing it more stylish than 128 neuron counterpart
 
-=== network details ===
-Input size: 8
-First hidden layer size: 64
-Second hidden layer: 64
-activation function: ReLU
-output size: 4
-network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4
+=== network details ===  
+Input size: 8  
+First hidden layer size: 64  
+Second hidden layer: 64  
+activation function: ReLU  
+output size: 4  
+network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4  
 
 === training details ===
 Number of training episodes: 6000
