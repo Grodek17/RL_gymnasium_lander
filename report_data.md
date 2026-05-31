@@ -1115,3 +1115,95 @@ Learning rate: 0.001
 - Episode 5500: 24.53, epsilon: 0.10
 
 
+#=== REPORT: 64_relu second attempt ===
+Report date: 2026:05:31:22:08 
+
+network saved as: 64_relu_2nd.pth 
+best reward scored by network: **255.31156125917892** 
+note: this was second attempt of network training with this configuration to check if previous collapse was due to random factor or mistake in network architecture 
+ 
+=== network details ===
+Input size: 8
+First hidden layer size: 64
+Second hidden layer: 64
+activation function: ReLU
+output size: 4
+network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4
+
+=== training details ===
+Number of training episodes: 6000
+Buffer size: 50000
+Batch size: 64
+Target network updated each 1000 steps 
+ 
+=== Q learning parameters ===
+Gamma: 0.99
+Initial epsilon: 0.9 
+Epsilon lowered each episode by 0.00016
+Minimal epsilon: 0.1 
+Learning rate: 0.001
+
+![Training plot](plots/64_relu_2nd.png)
+
+## Mean rewards
+
+- Episode 0: -54.07, epsilon: 0.90
+- Episode 500: -102.11, epsilon: 0.82
+- Episode 1000: -91.13, epsilon: 0.74
+- Episode 1500: -61.64, epsilon: 0.66
+- Episode 2000: -48.30, epsilon: 0.58
+- Episode 2500: -33.23, epsilon: 0.50
+- Episode 3000: -9.32, epsilon: 0.42
+- Episode 3500: -25.43, epsilon: 0.34
+- Episode 4000: -19.22, epsilon: 0.26
+- Episode 4500: 100.90, epsilon: 0.18
+- Episode 5000: 210.08, epsilon: 0.10
+- Episode 5500: 183.96, epsilon: 0.10
+
+
+#=== REPORT: 128_ReLU ===
+Report date: 2026:05:31:23:56 
+
+network saved as: 128_ReLU.pth 
+best reward scored by network: **256.0488776425706** 
+note: This training number of neurons in hidden layer was changed to 128 each hidden layer, network performed slightly better and managed to learn to land well 
+ 
+=== network details ===
+Input size: 8
+First hidden layer size: 128
+Second hidden layer: 128
+activation function: ReLU
+output size: 4
+network 'graph': 8 -> 128 -> ReLU -> 128 -> ReLU -> 4
+
+=== training details ===
+Number of training episodes: 6000
+Buffer size: 50000
+Batch size: 64
+Target network updated each 1000 steps 
+ 
+=== Q learning parameters ===
+Gamma: 0.99
+Initial epsilon: 0.9 
+Epsilon lowered each episode by 0.00016
+Minimal epsilon: 0.1 
+Learning rate: 0.001
+
+![Training plot](plots/128_ReLU.png)
+
+## Mean rewards
+
+- Episode 0: -96.14, epsilon: 0.90
+- Episode 500: -99.58, epsilon: 0.82
+- Episode 1000: -85.77, epsilon: 0.74
+- Episode 1500: -64.34, epsilon: 0.66
+- Episode 2000: -66.78, epsilon: 0.58
+- Episode 2500: -28.21, epsilon: 0.50
+- Episode 3000: -40.56, epsilon: 0.42
+- Episode 3500: 26.58, epsilon: 0.34
+- Episode 4000: 17.17, epsilon: 0.26
+- Episode 4500: 100.55, epsilon: 0.18
+- Episode 5000: 192.07, epsilon: 0.10
+- Episode 5500: 246.39, epsilon: 0.10
+
+

@@ -5,6 +5,7 @@
 # saving videos of trained network via gymnasium
 # src folder with all code
 # choose what to do in main switch/input
+# todo save loss functino
 import gymnasium
 import random
 import torch 
@@ -97,12 +98,10 @@ def reportResults(episode_list, mean_list, epsilon_list, saved_training):
         elif save == "n":
             return
         
-    print("please give name of the plot title:")
+    print("please give file name of the plot title, plot file and NN file (same for all for better navigation):")
     name = input()
-    print("please give name of the plot file:")
-    filename = input()
-    print("please give name of trained NN file: ")
-    networkfile_name = input()
+    filename = name
+    networkfile_name = name
 
     ''' PLOT '''
     plt.plot(episode_list, mean_list)
