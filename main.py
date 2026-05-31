@@ -1,13 +1,13 @@
 #todo
-# check episode and step lenght every 100 episodes
-# save model with best mean rewards in case learning "collapses"
-# save model in general
 # better NN initialisation, no magic numbers
-# bigger buffer
-# 
-# eval function
 # reading networks from file (possibly separate .py)
 # training functions as class
+# paths as constants
+# training functions as a separate file
+# copying not only weights but also nn structure
+# saving videos of trained network via gymnasium
+# src folder with all code
+# report file rework [better metadata, lesser reward prints (each 1000 for example, adding plots for details, making plots prettier), see in live prewiev what are u writing, consult to just rewrite initial reports (keep the data but tidy up)]
 
 import gymnasium
 import random
@@ -20,17 +20,33 @@ import copy
 
 from NeuralNetworkClass import NeuralNetwork
 from ExperienceBufferClass import ExperienceBuffer
+from helpers import normalise_observation
+from eval import evaluation
 
-from constants import (MAX_X, MAX_Y, MAX_VELOCITY_X, MAX_VELOCITY_Y,
-                       MAX_ANGLE, MAX_ANGULAR_VELOCITY, NUMBER_OF_EPISODES,
-                       BUFFER_SIZE, DEBUG, TEMP_DEBUG, TRAINING_BATCH_SIZE, FIRST_H_LAYER, SECOND_H_LAYER,
-                       LAST_REWARDS_SIZE, ALPHA, GAMMA, UPDATE_TARGET_EACH_STEPS,
+from constants import (NUMBER_OF_EPISODES,
+                       BUFFER_SIZE, DEBUG, TRAINING_BATCH_SIZE, FIRST_H_LAYER, SECOND_H_LAYER,
+                       LAST_REWARDS_SIZE, GAMMA, UPDATE_TARGET_EACH_STEPS,
                        INITIAL_EPSILON, MINIMAL_EPSILON ,LEARNING_RATE)
 
 ''' CLASSES INITIALISATION '''
 learning_model = NeuralNetwork()
 target_model = NeuralNetwork()
 target_model.load_state_dict(learning_model.state_dict())
+
+
+network_save = {
+    "model_state_dict": learning_model.state_dict(),
+    "input_size": 8,
+    "hidden_1": FIRST_H_LAYER,
+    "hidden_2": SECOND_H_LAYER,
+    "output_size": 4,
+    "activation": "ReLU",
+    "gamma": GAMMA,
+    "learning_rate": LEARNING_RATE,
+    "normalisation": True,
+    "buffer_size": BUFFER_SIZE,
+    "batch_size": TRAINING_BATCH_SIZE,
+}
 
 
 buffer = ExperienceBuffer(BUFFER_SIZE)
@@ -87,14 +103,7 @@ def modelLearning():
     print("equals target: ", target)
     '''
     
-def normalise_observation(obs):
-    obs[0] = obs[0]/MAX_X
-    obs[1] = obs[1]/MAX_Y
-    obs[2] = obs[2]/MAX_VELOCITY_X
-    obs[3] = obs[3]/MAX_VELOCITY_Y
-    obs[4] = obs[4]/MAX_ANGLE
-    obs[5] = obs[5]/MAX_ANGULAR_VELOCITY
-    return obs
+
 
 def reportResults(episode_list, mean_list, epsilon_list, best_network):
     ''' ASKING TO SAVE '''
@@ -131,6 +140,7 @@ def reportResults(episode_list, mean_list, epsilon_list, best_network):
     note = input()
     with open("report_data.md", "a", encoding="utf-8") as file:
         file.write(f"#=== REPORT: {title} ===\n\n")
+        file.write(f"network saved as: {networkfile_name} \n")
         file.write(f"note: {note}\n")
         file.write("---------------------\n")
         file.write(f"Number of episodes: {NUMBER_OF_EPISODES}\n")
@@ -240,7 +250,11 @@ def training():
 
 
 def main():
-    training()
+    #training()
+    model = NeuralNetwork()
+    model.load_state_dict(torch.load("trained_networks/save1.pth"))
+    model.eval()
+    evaluation(10, model, "save1.pth", random_baseline=False)
     pass
 
 if __name__ == "__main__":

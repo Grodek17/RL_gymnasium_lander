@@ -946,3 +946,42 @@ Learning rate: 0.001
 - Episode 5950.0: 214.91, epsilon: 0.10
 #================
 
+#=== EVALUATION: 8-64-relu-64-relu-4 trained network ===
+
+network file name: save1.pth 
+note: this was evaluation of previously trained network with bigger buffer and updating done by x-steps and not x-episodes. Network performed very well in almost every trial
+---------------------
+Number of evaluation episodes: 10
+## Rewards
+264.51
+-9.83
+260.74
+220.15
+289.63
+233.75
+230.54
+257.33
+218.62
+257.41
+#================
+
+#=== EVALUATION: Random_baseline_test ===
+
+random actions (random baseline)?: True
+network file name: save1.pth 
+note: this was test of random model action choosing (randint(0,3)) for comparison with trained models
+---------------------
+Number of evaluation episodes: 10
+## Rewards
+-302.39
+-78.35
+-85.41
+-388.80
+-488.92
+-263.10
+-263.32
+-104.85
+-132.61
+-181.27
+#================
+
