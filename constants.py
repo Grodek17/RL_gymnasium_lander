@@ -1,3 +1,5 @@
+import torch.nn as nn
+
 #input normalisation constants [gymanasium enviroment dependent]
 MAX_X = 2.5                     #x position
 MAX_Y = 2.5                     #y position
@@ -17,12 +19,23 @@ LAST_REWARDS_SIZE = 50      # size of list of last reward for calculating mean/m
 
 
 #hyperparameters of Q learning [name this better]
-ALPHA = 0.1                     #learning rate
 GAMMA = 0.99                    #"importance of future"
 INITIAL_EPSILON = 0.9         #random move probability
+EPSILON_DECAY_SUBSTRACT = 0.00016 #epsilon reduced by this ammount every episode
 MINIMAL_EPSILON = 0.1
 LEARNING_RATE = 0.001       #move this into constants
 UPDATE_TARGET_EACH_STEPS = 1000
-FIRST_H_LAYER = 64
-SECOND_H_LAYER = 64
 
+#constants of NN to train
+INPUT_SIZE = 8
+FIRST_H_LAYER = 128
+SECOND_H_LAYER = 128
+ACTIVATION_FUNCTION = "ReLU"
+OUTPUT_SIZE = 4
+
+
+#names of activation functions for initialisation of NN
+ACTIVATIONS = {
+    "ReLU": nn.ReLU,
+    "tanh": nn.Tanh,
+}

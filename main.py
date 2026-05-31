@@ -1,14 +1,11 @@
 #todo
-# check episode and step lenght every 100 episodes
-# save model with best mean rewards in case learning "collapses"
-# save model in general
-# better NN initialisation, no magic numbers
-# bigger buffer
-# 
-# eval function
-# reading networks from file (possibly separate .py)
 # training functions as class
-
+# paths as constants
+# training functions as a separate file
+# saving videos of trained network via gymnasium
+# src folder with all code
+# choose what to do in main switch/input
+# todo save loss functino
 import gymnasium
 import random
 import torch 
@@ -18,24 +15,26 @@ import time
 import matplotlib.pyplot as plt
 import copy
 
+from datetime import datetime
 from NeuralNetworkClass import NeuralNetwork
 from ExperienceBufferClass import ExperienceBuffer
+from Network_save_class import NetworkSave
 
-from constants import (MAX_X, MAX_Y, MAX_VELOCITY_X, MAX_VELOCITY_Y,
-                       MAX_ANGLE, MAX_ANGULAR_VELOCITY, NUMBER_OF_EPISODES,
-                       BUFFER_SIZE, DEBUG, TEMP_DEBUG, TRAINING_BATCH_SIZE, FIRST_H_LAYER, SECOND_H_LAYER,
-                       LAST_REWARDS_SIZE, ALPHA, GAMMA, UPDATE_TARGET_EACH_STEPS,
+from helpers import normalise_observation
+from eval import evaluation
+
+from constants import (NUMBER_OF_EPISODES, ACTIVATION_FUNCTION, INPUT_SIZE, OUTPUT_SIZE, EPSILON_DECAY_SUBSTRACT,
+                       BUFFER_SIZE, DEBUG, TRAINING_BATCH_SIZE, FIRST_H_LAYER, SECOND_H_LAYER,
+                       LAST_REWARDS_SIZE, GAMMA, UPDATE_TARGET_EACH_STEPS,
                        INITIAL_EPSILON, MINIMAL_EPSILON ,LEARNING_RATE)
 
 ''' CLASSES INITIALISATION '''
-learning_model = NeuralNetwork()
-target_model = NeuralNetwork()
+learning_model = NeuralNetwork(INPUT_SIZE, FIRST_H_LAYER, SECOND_H_LAYER, OUTPUT_SIZE, ACTIVATION_FUNCTION, weights_object = None)
+target_model = NeuralNetwork(INPUT_SIZE, FIRST_H_LAYER, SECOND_H_LAYER, OUTPUT_SIZE, ACTIVATION_FUNCTION, weights_object = None)
 target_model.load_state_dict(learning_model.state_dict())
-
 
 buffer = ExperienceBuffer(BUFFER_SIZE)
 optimizer = torch.optim.Adam(learning_model.parameters(), lr=LEARNING_RATE)
-env = gymnasium.make("LunarLander-v3", continuous=False, gravity=-10.0, enable_wind=False, wind_power=15.0, turbulence_power=0.5)
 
 #decides action for agent, either random or NN based.
 #takes tensor and int as inputs, returns integer (action code)
@@ -87,68 +86,80 @@ def modelLearning():
     print("equals target: ", target)
     '''
     
-def normalise_observation(obs):
-    obs[0] = obs[0]/MAX_X
-    obs[1] = obs[1]/MAX_Y
-    obs[2] = obs[2]/MAX_VELOCITY_X
-    obs[3] = obs[3]/MAX_VELOCITY_Y
-    obs[4] = obs[4]/MAX_ANGLE
-    obs[5] = obs[5]/MAX_ANGULAR_VELOCITY
-    return obs
 
-def reportResults(episode_list, mean_list, epsilon_list, best_network):
+
+def reportResults(episode_list, mean_list, epsilon_list, saved_training):
     ''' ASKING TO SAVE '''
     while True:
-        print("save plot & report? [y/n]")
+        print("save plot, report and network? [y/n]")
         save = input()
         if save == "y":
             break
         elif save == "n":
             return
-    print("please give name of the plot title:")
+        
+    print("please give file name of the plot title, plot file and NN file (same for all for better navigation):")
     name = input()
-    print("please give name of the plot file:")
-    filename = input()
-    print("please give name of trained NN file: ")
-    networkfile_name = input()
+    filename = name
+    networkfile_name = name
 
     ''' PLOT '''
-    plt.plot(episode_list, mean_list, marker="o")
+    plt.plot(episode_list, mean_list)
     plt.xlabel("Episode")
-    plt.ylabel(f"mean reward of last {LAST_REWARDS_SIZE} episodes")
+    plt.ylabel(f"mean reward of last {saved_training.mean_reward_each} episodes")
     plt.title(name)
     plt.grid(True)
     plt.savefig("plots/" + filename + ".png")
     plt.show()
 
     ''' SAVING NN '''
-    torch.save(best_network, "trained_networks/"+ networkfile_name +".pth")
+    torch.save(saved_training.__dict__, "trained_networks/"+ networkfile_name +".pth")
 
     ''' MARKDOWN UPDATE '''
     print("Write title of report section in markdown file: ")
     title = input()
     print("please write note about this specific training: ")
     note = input()
+
+    time = datetime.now().strftime("%Y:%m:%d:%H:%M")
     with open("report_data.md", "a", encoding="utf-8") as file:
-        file.write(f"#=== REPORT: {title} ===\n\n")
-        file.write(f"note: {note}\n")
-        file.write("---------------------\n")
-        file.write(f"Number of episodes: {NUMBER_OF_EPISODES}\n")
-        file.write(f"Buffer size: {BUFFER_SIZE}\n")
-        file.write(f"Batch size: {TRAINING_BATCH_SIZE}\n")
-        file.write(f"First hidden layer size: {FIRST_H_LAYER}\n")
-        file.write(f"Second hidden layer: {SECOND_H_LAYER}\n")
-        file.write(f"Gamma: {GAMMA}\n")
-        file.write(f"Learning rate: {LEARNING_RATE}\n\n")
+        file.write(f"#=== REPORT: {title} ===\n")
+        file.write(f"Report date: {time} \n\n")
+        file.write(f"network saved as: {networkfile_name}.pth \n")
+        file.write(f"best reward scored by network: **{saved_training.best_reward_training}** \n")
+        file.write(f"note: {note} \n \n")
+
+        file.write("=== network details ===\n")
+        file.write(f"Input size: {saved_training.input_size}\n")
+        file.write(f"First hidden layer size: {saved_training.first_layer_size}\n")
+        file.write(f"Second hidden layer: {saved_training.second_layer_size}\n")
+        file.write(f"activation function: {saved_training.activation}\n")
+        file.write(f"output size: {saved_training.output_size}\n")
+        file.write(f"network 'graph': {saved_training.input_size} -> {saved_training.first_layer_size} -> {saved_training.activation} -> {saved_training.second_layer_size} -> {saved_training.activation} -> {saved_training.output_size}\n\n")
+
+        file.write(f"=== training details ===\n")
+        file.write(f"Number of training episodes: {saved_training.num_of_training_eps}\n")
+        file.write(f"Buffer size: {saved_training.buffer_size}\n")
+        file.write(f"Batch size: {saved_training.batch_size}\n")
+        file.write(f"Target network updated each {saved_training.network_update_each} steps \n \n")
+
+        file.write(f"=== Q learning parameters ===\n")
+        file.write(f"Gamma: {saved_training.gamma}\n")
+        file.write(f"Initial epsilon: {saved_training.initial_epsilon} \n")
+        file.write(f"Epsilon lowered each episode by {saved_training.epsilon_subtract}\n")
+        file.write(f"Minimal epsilon: {saved_training.min_epsilon} \n")
+        file.write(f"Learning rate: {saved_training.learning_rate}\n\n")
         file.write("![Training plot](plots/" + filename + ".png)\n\n")
         file.write("## Mean rewards\n\n")
 
         for episode, reward, epsilon in zip(episode_list, mean_list, epsilon_list):
-            file.write(f"- Episode {episode}: {reward:.2f}, epsilon: {epsilon:.2f}\n")
-        file.write("#================\n\n")
+            if episode % 500 == 0:
+                file.write(f"- Episode {episode:.0f}: {reward:.2f}, epsilon: {epsilon:.2f}\n")
+        file.write("\n\n")
 
 #main loop of training in the enviroment
 def training():
+    env = gymnasium.make("LunarLander-v3", continuous=False, gravity=-10.0, enable_wind=False, wind_power=15.0, turbulence_power=0.5)
     lastrewards = []
     mean_rewards = []
     number_of_episode = []
@@ -159,9 +170,6 @@ def training():
 
 
     for episode in range(NUMBER_OF_EPISODES):
-        #if episode % 10 == 0:
-         #   print("episode: ", episode)
-
         if episode % 1000 == 0:
             episode_start_time = time.perf_counter()
         obs, info = env.reset()             #starting state
@@ -170,7 +178,7 @@ def training():
         episode_steps = 0
         episode_ended = False
         total_reward = 0
-        epsilon = max((epsilon - 0.00016), MINIMAL_EPSILON)
+        epsilon = max((epsilon - EPSILON_DECAY_SUBSTRACT), MINIMAL_EPSILON)
 
         while not episode_ended:
             if episode_steps == 0 and episode % 1000 == 0:
@@ -235,12 +243,18 @@ def training():
 
     env.close()  
     print("mean rewards: ", mean_rewards)
+
+    # save all metadata of a training, structure of NN, hyperparameters, etc
+    saved_training = NetworkSave(best_reward, INPUT_SIZE, FIRST_H_LAYER, SECOND_H_LAYER, ACTIVATION_FUNCTION, OUTPUT_SIZE, NUMBER_OF_EPISODES, BUFFER_SIZE, TRAINING_BATCH_SIZE,
+                                 UPDATE_TARGET_EACH_STEPS, LAST_REWARDS_SIZE, GAMMA, INITIAL_EPSILON, EPSILON_DECAY_SUBSTRACT, MINIMAL_EPSILON, LEARNING_RATE, best_model_state)
     
-    reportResults(number_of_episode, mean_rewards, epsilon_list, best_model_state)
+    #change to saved training
+    reportResults(number_of_episode, mean_rewards, epsilon_list, saved_training)
 
 
 def main():
     training()
+    #evaluation(10, "trained_networks/test_new_format_2.pth", random_baseline=False)
     pass
 
 if __name__ == "__main__":
