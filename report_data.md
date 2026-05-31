@@ -985,3 +985,87 @@ Number of evaluation episodes: 10
 -181.27
 #================
 
+#=== REPORT: test of reworked saving and reporting modules ===
+Report date: 2026:05:31:18:07 
+
+network saved as: test_new_format_1.pth 
+
+
+#=== REPORT: test_new_format_2 ===
+Report date: 2026:05:31:18:10 
+
+network saved as: test_new_format_2.pth 
+best reward scored by network: **-168.06747473328545** 
+note: test_new_format_2 
+ 
+=== network details ===
+Input size: 8
+First hidden layer size: 64
+Second hidden layer: 64
+activation function: ReLU
+output size: 4
+network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4
+
+=== training details ===
+Number of training episodes: 100
+Buffer size: 50000
+Batch size: 64
+Target network updated each 1000 steps 
+ 
+=== Q learning parameters ===
+Gamma: 0.99
+Initial epsilon: 0.9 
+Epsilon lowered each episode by 0.00016
+Minimal epsilon: 0.1 
+Learning rate: 0.001
+
+![Training plot](plots/test_new_format_2.png)
+
+## Mean rewards
+
+- Episode 0: -168.07, epsilon: 0.90
+
+
+#=== EVALUATION: test_new_format_2 ===
+
+Evaluation date: 2026:05:31:18:20 
+
+random actions (random baseline)?: False
+network file name: trained_networks/test_new_format_2.pth 
+Number of evaluation episodes: 10
+note: test_new_format_2
+
+=== network details ===
+Input size: 8
+First hidden layer size: 64
+Second hidden layer: 64
+activation function: ReLU
+output size: 4
+network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4
+
+=== training details ===
+Number of training episodes: 100
+Buffer size: 50000
+Batch size: 64
+Target network updated each 1000 steps 
+ 
+=== Q learning parameters ===
+Gamma: 0.99
+Initial epsilon: 0.9 
+Epsilon lowered each episode by 0.00016
+Minimal epsilon: 0.1 
+Learning rate: 0.001
+
+## Rewards
+-635.50
+-548.82
+-444.19
+-585.60
+-427.91
+-548.02
+-451.71
+-662.30
+-532.51
+-827.41
+
+

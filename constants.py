@@ -1,3 +1,5 @@
+import torch.nn as nn
+
 #input normalisation constants [gymanasium enviroment dependent]
 MAX_X = 2.5                     #x position
 MAX_Y = 2.5                     #y position
@@ -8,7 +10,7 @@ MAX_ANGULAR_VELOCITY = 10.      #angular velocity of ship
 
 
 #constants
-NUMBER_OF_EPISODES = 6000    # number of training episodes
+NUMBER_OF_EPISODES = 100    # number of training episodes
 BUFFER_SIZE = 50000         # size of experience buffer
 DEBUG = False               # flag for debug prints
 TEMP_DEBUG = False          # another flag for debug, possibly to delete
@@ -17,12 +19,23 @@ LAST_REWARDS_SIZE = 50      # size of list of last reward for calculating mean/m
 
 
 #hyperparameters of Q learning [name this better]
-ALPHA = 0.1                     #learning rate
 GAMMA = 0.99                    #"importance of future"
 INITIAL_EPSILON = 0.9         #random move probability
+EPSILON_DECAY_SUBSTRACT = 0.00016 #epsilon reduced by this ammount every episode
 MINIMAL_EPSILON = 0.1
 LEARNING_RATE = 0.001       #move this into constants
 UPDATE_TARGET_EACH_STEPS = 1000
+
+
+INPUT_SIZE = 8
 FIRST_H_LAYER = 64
 SECOND_H_LAYER = 64
+ACTIVATION_FUNCTION = "ReLU"
+OUTPUT_SIZE = 4
 
+
+#names of activation functions for initialisation of NN
+ACTIVATIONS = {
+    "ReLU": nn.ReLU,
+    "tanh": nn.Tanh,
+}
