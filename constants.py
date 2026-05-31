@@ -10,7 +10,7 @@ MAX_ANGULAR_VELOCITY = 10.      #angular velocity of ship
 
 
 #constants
-NUMBER_OF_EPISODES = 100    # number of training episodes
+NUMBER_OF_EPISODES = 6000    # number of training episodes
 BUFFER_SIZE = 50000         # size of experience buffer
 DEBUG = False               # flag for debug prints
 TEMP_DEBUG = False          # another flag for debug, possibly to delete
@@ -26,7 +26,7 @@ MINIMAL_EPSILON = 0.1
 LEARNING_RATE = 0.001       #move this into constants
 UPDATE_TARGET_EACH_STEPS = 1000
 
-
+#constants of NN to train
 INPUT_SIZE = 8
 FIRST_H_LAYER = 64
 SECOND_H_LAYER = 64

@@ -1,14 +1,10 @@
 #todo
-# better NN initialisation, no magic numbers
-# reading networks from file (possibly separate .py)
 # training functions as class
 # paths as constants
 # training functions as a separate file
-# copying not only weights but also nn structure
 # saving videos of trained network via gymnasium
 # src folder with all code
-# report file rework [better metadata, lesser reward prints (each 1000 for example, adding plots for details, making plots prettier), see in live prewiev what are u writing, consult to just rewrite initial reports (keep the data but tidy up)]
-
+# choose what to do in main switch/input
 import gymnasium
 import random
 import torch 
@@ -258,8 +254,8 @@ def training():
 
 
 def main():
-    #training()
-    evaluation(10, "trained_networks/test_new_format_2.pth", random_baseline=False)
+    training()
+    #evaluation(10, "trained_networks/test_new_format_2.pth", random_baseline=False)
     pass
 
 if __name__ == "__main__":

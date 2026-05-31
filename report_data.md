@@ -1069,3 +1069,49 @@ Learning rate: 0.001
 -827.41
 
 
+#=== REPORT: 64_RELU ===
+Report date: 2026:05:31:20:20 
+
+network saved as: 64_relu.pth 
+best reward scored by network: **165.17830813029695** 
+note: This time model with same parameters performed slightly worse, perhaps because of collapse of rewards in the middle, akthough model quickly bounce back. Additional tests are needed to determine if this was due to random chance or there is some problem with the model 
+ 
+=== network details ===
+Input size: 8
+First hidden layer size: 64
+Second hidden layer: 64
+activation function: ReLU
+output size: 4
+network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4
+
+=== training details ===
+Number of training episodes: 6000
+Buffer size: 50000
+Batch size: 64
+Target network updated each 1000 steps 
+ 
+=== Q learning parameters ===
+Gamma: 0.99
+Initial epsilon: 0.9 
+Epsilon lowered each episode by 0.00016
+Minimal epsilon: 0.1 
+Learning rate: 0.001
+
+![Training plot](plots/64_relu.png)
+
+## Mean rewards
+
+- Episode 0: -181.44, epsilon: 0.90
+- Episode 500: -83.30, epsilon: 0.82
+- Episode 1000: -83.20, epsilon: 0.74
+- Episode 1500: -60.33, epsilon: 0.66
+- Episode 2000: -50.12, epsilon: 0.58
+- Episode 2500: -43.42, epsilon: 0.50
+- Episode 3000: -7.07, epsilon: 0.42
+- Episode 3500: 53.80, epsilon: 0.34
+- Episode 4000: 41.13, epsilon: 0.26
+- Episode 4500: 19.36, epsilon: 0.18
+- Episode 5000: -290.75, epsilon: 0.10
+- Episode 5500: 24.53, epsilon: 0.10
+
+
