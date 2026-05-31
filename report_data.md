@@ -673,3 +673,276 @@ Learning rate: 0.001
 - Episode 150.0: -204.63, epsilon: 0.98
 #================
 
+#=== REPORT: FIXED TARGET UPDATING & BIGGER BUFFER ===
+
+note: In this training it was confirmed that each step takes same ammount of time no matter the episode, latter episodes takes longer because model is better trained and the lander is longer afloat. Longer afloat time also mean more steps each episode, which was bad for target updating determined by episodes and not steps. After reaching some threshold episodes started taking many more steps, and previous version started degrading. In this one updating target network is done by every 1000 steps not 100 episodes, which greatly improved learning possibilieties of NN compared to the previous one
+Number of episodes: 6000
+Buffer size: 50000
+Batch size: 64
+Gamma: 0.99
+Learning rate: 0.001
+
+![Training plot](plots/fix_buffer_steps.png)
+
+## Mean rewards
+
+- Episode 0.0: -69.82, epsilon: 0.90
+- Episode 50.0: -150.14, epsilon: 0.89
+- Episode 100.0: -147.96, epsilon: 0.88
+- Episode 150.0: -135.30, epsilon: 0.88
+- Episode 200.0: -136.58, epsilon: 0.87
+- Episode 250.0: -125.75, epsilon: 0.86
+- Episode 300.0: -105.07, epsilon: 0.85
+- Episode 350.0: -102.55, epsilon: 0.84
+- Episode 400.0: -102.99, epsilon: 0.84
+- Episode 450.0: -102.31, epsilon: 0.83
+- Episode 500.0: -103.06, epsilon: 0.82
+- Episode 550.0: -92.61, epsilon: 0.81
+- Episode 600.0: -110.77, epsilon: 0.80
+- Episode 650.0: -82.06, epsilon: 0.80
+- Episode 700.0: -105.39, epsilon: 0.79
+- Episode 750.0: -88.85, epsilon: 0.78
+- Episode 800.0: -99.83, epsilon: 0.77
+- Episode 850.0: -88.61, epsilon: 0.76
+- Episode 900.0: -85.65, epsilon: 0.76
+- Episode 950.0: -95.00, epsilon: 0.75
+- Episode 1000.0: -83.92, epsilon: 0.74
+- Episode 1050.0: -86.74, epsilon: 0.73
+- Episode 1100.0: -77.80, epsilon: 0.72
+- Episode 1150.0: -83.07, epsilon: 0.72
+- Episode 1200.0: -80.12, epsilon: 0.71
+- Episode 1250.0: -82.98, epsilon: 0.70
+- Episode 1300.0: -74.87, epsilon: 0.69
+- Episode 1350.0: -70.39, epsilon: 0.68
+- Episode 1400.0: -76.77, epsilon: 0.68
+- Episode 1450.0: -78.51, epsilon: 0.67
+- Episode 1500.0: -63.10, epsilon: 0.66
+- Episode 1550.0: -65.15, epsilon: 0.65
+- Episode 1600.0: -72.33, epsilon: 0.64
+- Episode 1650.0: -62.61, epsilon: 0.64
+- Episode 1700.0: -61.32, epsilon: 0.63
+- Episode 1750.0: -54.50, epsilon: 0.62
+- Episode 1800.0: -73.15, epsilon: 0.61
+- Episode 1850.0: -53.91, epsilon: 0.60
+- Episode 1900.0: -57.68, epsilon: 0.60
+- Episode 1950.0: -61.12, epsilon: 0.59
+- Episode 2000.0: -63.93, epsilon: 0.58
+- Episode 2050.0: -50.57, epsilon: 0.57
+- Episode 2100.0: -47.78, epsilon: 0.56
+- Episode 2150.0: -36.95, epsilon: 0.56
+- Episode 2200.0: -45.40, epsilon: 0.55
+- Episode 2250.0: -46.15, epsilon: 0.54
+- Episode 2300.0: -36.40, epsilon: 0.53
+- Episode 2350.0: -46.23, epsilon: 0.52
+- Episode 2400.0: -49.39, epsilon: 0.52
+- Episode 2450.0: -28.65, epsilon: 0.51
+- Episode 2500.0: -29.84, epsilon: 0.50
+- Episode 2550.0: -24.28, epsilon: 0.49
+- Episode 2600.0: -33.35, epsilon: 0.48
+- Episode 2650.0: -12.92, epsilon: 0.48
+- Episode 2700.0: -11.63, epsilon: 0.47
+- Episode 2750.0: -23.47, epsilon: 0.46
+- Episode 2800.0: 11.85, epsilon: 0.45
+- Episode 2850.0: 12.17, epsilon: 0.44
+- Episode 2900.0: 2.63, epsilon: 0.44
+- Episode 2950.0: 14.78, epsilon: 0.43
+- Episode 3000.0: 1.74, epsilon: 0.42
+- Episode 3050.0: -16.78, epsilon: 0.41
+- Episode 3100.0: 5.77, epsilon: 0.40
+- Episode 3150.0: 12.38, epsilon: 0.40
+- Episode 3200.0: 6.03, epsilon: 0.39
+- Episode 3250.0: -6.09, epsilon: 0.38
+- Episode 3300.0: 33.53, epsilon: 0.37
+- Episode 3350.0: 24.59, epsilon: 0.36
+- Episode 3400.0: 7.01, epsilon: 0.36
+- Episode 3450.0: 10.34, epsilon: 0.35
+- Episode 3500.0: 37.62, epsilon: 0.34
+- Episode 3550.0: 36.66, epsilon: 0.33
+- Episode 3600.0: 42.07, epsilon: 0.32
+- Episode 3650.0: 80.69, epsilon: 0.32
+- Episode 3700.0: 35.08, epsilon: 0.31
+- Episode 3750.0: 15.59, epsilon: 0.30
+- Episode 3800.0: 59.67, epsilon: 0.29
+- Episode 3850.0: 80.30, epsilon: 0.28
+- Episode 3900.0: 73.66, epsilon: 0.28
+- Episode 3950.0: 64.98, epsilon: 0.27
+- Episode 4000.0: 19.19, epsilon: 0.26
+- Episode 4050.0: 60.74, epsilon: 0.25
+- Episode 4100.0: 79.61, epsilon: 0.24
+- Episode 4150.0: 108.22, epsilon: 0.24
+- Episode 4200.0: 110.07, epsilon: 0.23
+- Episode 4250.0: 136.57, epsilon: 0.22
+- Episode 4300.0: 129.40, epsilon: 0.21
+- Episode 4350.0: 99.01, epsilon: 0.20
+- Episode 4400.0: 111.24, epsilon: 0.20
+- Episode 4450.0: 132.18, epsilon: 0.19
+- Episode 4500.0: 118.13, epsilon: 0.18
+- Episode 4550.0: 165.88, epsilon: 0.17
+- Episode 4600.0: 170.29, epsilon: 0.16
+- Episode 4650.0: 192.13, epsilon: 0.16
+- Episode 4700.0: 198.27, epsilon: 0.15
+- Episode 4750.0: 179.76, epsilon: 0.14
+- Episode 4800.0: 176.08, epsilon: 0.13
+- Episode 4850.0: 167.74, epsilon: 0.12
+- Episode 4900.0: 180.49, epsilon: 0.12
+- Episode 4950.0: 184.68, epsilon: 0.11
+- Episode 5000.0: 233.98, epsilon: 0.10
+- Episode 5050.0: 221.96, epsilon: 0.10
+- Episode 5100.0: 180.38, epsilon: 0.10
+- Episode 5150.0: 209.26, epsilon: 0.10
+- Episode 5200.0: 244.11, epsilon: 0.10
+- Episode 5250.0: 242.82, epsilon: 0.10
+- Episode 5300.0: 259.15, epsilon: 0.10
+- Episode 5350.0: 242.05, epsilon: 0.10
+- Episode 5400.0: 209.89, epsilon: 0.10
+- Episode 5450.0: 212.41, epsilon: 0.10
+- Episode 5500.0: 217.03, epsilon: 0.10
+- Episode 5550.0: 242.36, epsilon: 0.10
+- Episode 5600.0: 218.81, epsilon: 0.10
+- Episode 5650.0: 194.33, epsilon: 0.10
+- Episode 5700.0: 221.62, epsilon: 0.10
+- Episode 5750.0: 238.36, epsilon: 0.10
+- Episode 5800.0: 232.64, epsilon: 0.10
+- Episode 5850.0: 156.06, epsilon: 0.10
+- Episode 5900.0: 164.84, epsilon: 0.10
+- Episode 5950.0: 231.89, epsilon: 0.10
+#================
+
+#=== REPORT: same as previously, this time network was saved into a file ===
+
+note: ...
+---------------------
+Number of episodes: 6000
+Buffer size: 50000
+Batch size: 64
+First hidden layer size: 64
+Second hidden layer: 64
+Gamma: 0.99
+Learning rate: 0.001
+
+![Training plot](plots/save1.png)
+
+## Mean rewards
+
+- Episode 0.0: -253.28, epsilon: 0.90
+- Episode 50.0: -198.63, epsilon: 0.89
+- Episode 100.0: -186.86, epsilon: 0.88
+- Episode 150.0: -154.99, epsilon: 0.88
+- Episode 200.0: -129.50, epsilon: 0.87
+- Episode 250.0: -141.04, epsilon: 0.86
+- Episode 300.0: -112.34, epsilon: 0.85
+- Episode 350.0: -122.33, epsilon: 0.84
+- Episode 400.0: -90.95, epsilon: 0.84
+- Episode 450.0: -104.37, epsilon: 0.83
+- Episode 500.0: -105.24, epsilon: 0.82
+- Episode 550.0: -90.75, epsilon: 0.81
+- Episode 600.0: -83.92, epsilon: 0.80
+- Episode 650.0: -91.17, epsilon: 0.80
+- Episode 700.0: -95.28, epsilon: 0.79
+- Episode 750.0: -94.70, epsilon: 0.78
+- Episode 800.0: -88.21, epsilon: 0.77
+- Episode 850.0: -69.71, epsilon: 0.76
+- Episode 900.0: -85.44, epsilon: 0.76
+- Episode 950.0: -89.15, epsilon: 0.75
+- Episode 1000.0: -86.36, epsilon: 0.74
+- Episode 1050.0: -91.86, epsilon: 0.73
+- Episode 1100.0: -84.72, epsilon: 0.72
+- Episode 1150.0: -91.46, epsilon: 0.72
+- Episode 1200.0: -78.11, epsilon: 0.71
+- Episode 1250.0: -88.03, epsilon: 0.70
+- Episode 1300.0: -72.50, epsilon: 0.69
+- Episode 1350.0: -74.34, epsilon: 0.68
+- Episode 1400.0: -76.82, epsilon: 0.68
+- Episode 1450.0: -72.04, epsilon: 0.67
+- Episode 1500.0: -88.48, epsilon: 0.66
+- Episode 1550.0: -64.38, epsilon: 0.65
+- Episode 1600.0: -63.33, epsilon: 0.64
+- Episode 1650.0: -70.04, epsilon: 0.64
+- Episode 1700.0: -69.00, epsilon: 0.63
+- Episode 1750.0: -60.57, epsilon: 0.62
+- Episode 1800.0: -71.14, epsilon: 0.61
+- Episode 1850.0: -59.39, epsilon: 0.60
+- Episode 1900.0: -56.76, epsilon: 0.60
+- Episode 1950.0: -65.64, epsilon: 0.59
+- Episode 2000.0: -58.77, epsilon: 0.58
+- Episode 2050.0: -51.01, epsilon: 0.57
+- Episode 2100.0: -58.04, epsilon: 0.56
+- Episode 2150.0: -39.36, epsilon: 0.56
+- Episode 2200.0: -46.44, epsilon: 0.55
+- Episode 2250.0: -50.10, epsilon: 0.54
+- Episode 2300.0: -48.14, epsilon: 0.53
+- Episode 2350.0: -34.02, epsilon: 0.52
+- Episode 2400.0: -29.39, epsilon: 0.52
+- Episode 2450.0: -35.27, epsilon: 0.51
+- Episode 2500.0: -42.76, epsilon: 0.50
+- Episode 2550.0: -21.64, epsilon: 0.49
+- Episode 2600.0: -17.55, epsilon: 0.48
+- Episode 2650.0: -26.37, epsilon: 0.48
+- Episode 2700.0: -21.97, epsilon: 0.47
+- Episode 2750.0: -7.32, epsilon: 0.46
+- Episode 2800.0: -7.25, epsilon: 0.45
+- Episode 2850.0: -1.97, epsilon: 0.44
+- Episode 2900.0: -17.43, epsilon: 0.44
+- Episode 2950.0: -3.75, epsilon: 0.43
+- Episode 3000.0: -23.37, epsilon: 0.42
+- Episode 3050.0: 0.67, epsilon: 0.41
+- Episode 3100.0: 12.41, epsilon: 0.40
+- Episode 3150.0: 6.13, epsilon: 0.40
+- Episode 3200.0: -18.19, epsilon: 0.39
+- Episode 3250.0: -1.37, epsilon: 0.38
+- Episode 3300.0: -8.82, epsilon: 0.37
+- Episode 3350.0: -1.27, epsilon: 0.36
+- Episode 3400.0: -6.39, epsilon: 0.36
+- Episode 3450.0: 19.84, epsilon: 0.35
+- Episode 3500.0: -10.60, epsilon: 0.34
+- Episode 3550.0: 18.57, epsilon: 0.33
+- Episode 3600.0: -13.61, epsilon: 0.32
+- Episode 3650.0: 6.72, epsilon: 0.32
+- Episode 3700.0: 51.58, epsilon: 0.31
+- Episode 3750.0: 71.05, epsilon: 0.30
+- Episode 3800.0: 66.97, epsilon: 0.29
+- Episode 3850.0: 38.74, epsilon: 0.28
+- Episode 3900.0: 28.34, epsilon: 0.28
+- Episode 3950.0: 55.02, epsilon: 0.27
+- Episode 4000.0: 64.17, epsilon: 0.26
+- Episode 4050.0: 94.71, epsilon: 0.25
+- Episode 4100.0: 99.70, epsilon: 0.24
+- Episode 4150.0: 74.84, epsilon: 0.24
+- Episode 4200.0: 113.04, epsilon: 0.23
+- Episode 4250.0: 124.44, epsilon: 0.22
+- Episode 4300.0: 142.06, epsilon: 0.21
+- Episode 4350.0: 96.43, epsilon: 0.20
+- Episode 4400.0: 166.45, epsilon: 0.20
+- Episode 4450.0: 179.99, epsilon: 0.19
+- Episode 4500.0: 140.52, epsilon: 0.18
+- Episode 4550.0: 169.63, epsilon: 0.17
+- Episode 4600.0: 170.16, epsilon: 0.16
+- Episode 4650.0: 183.81, epsilon: 0.16
+- Episode 4700.0: 170.05, epsilon: 0.15
+- Episode 4750.0: 162.41, epsilon: 0.14
+- Episode 4800.0: 196.87, epsilon: 0.13
+- Episode 4850.0: 231.64, epsilon: 0.12
+- Episode 4900.0: 200.76, epsilon: 0.12
+- Episode 4950.0: 164.77, epsilon: 0.11
+- Episode 5000.0: 191.94, epsilon: 0.10
+- Episode 5050.0: 238.47, epsilon: 0.10
+- Episode 5100.0: 187.96, epsilon: 0.10
+- Episode 5150.0: 213.51, epsilon: 0.10
+- Episode 5200.0: 90.56, epsilon: 0.10
+- Episode 5250.0: 170.33, epsilon: 0.10
+- Episode 5300.0: 177.81, epsilon: 0.10
+- Episode 5350.0: 240.11, epsilon: 0.10
+- Episode 5400.0: 225.04, epsilon: 0.10
+- Episode 5450.0: 238.05, epsilon: 0.10
+- Episode 5500.0: 209.60, epsilon: 0.10
+- Episode 5550.0: 179.12, epsilon: 0.10
+- Episode 5600.0: 189.40, epsilon: 0.10
+- Episode 5650.0: 229.19, epsilon: 0.10
+- Episode 5700.0: 225.68, epsilon: 0.10
+- Episode 5750.0: 220.26, epsilon: 0.10
+- Episode 5800.0: 225.63, epsilon: 0.10
+- Episode 5850.0: 263.12, epsilon: 0.10
+- Episode 5900.0: 245.92, epsilon: 0.10
+- Episode 5950.0: 214.91, epsilon: 0.10
+#================
+
