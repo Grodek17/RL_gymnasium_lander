@@ -1293,3 +1293,44 @@ Learning rate: 0.001
 258.41
 
 
+# EVALUATION: test_of_gif_attachment ===
+
+  Evaluation date: 2026:06:01:11:20  
+
+random actions (random baseline)?: False  
+  network file name: trained_networks/64_relu_2nd.pth  
+  Number of evaluation episodes: 5  
+  note: test of new markdown formatting and gif attaching  
+
+  ## Evaluation video:  
+  ![Evaluation GIF](videos/gif_evalreport_test.gif)  
+
+=== network details ===
+Input size: 8
+First hidden layer size: 64
+Second hidden layer: 64
+activation function: ReLU
+output size: 4
+network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4
+
+=== training details ===
+Number of training episodes: 6000
+Buffer size: 50000
+Batch size: 64
+Target network updated each 1000 steps 
+ 
+=== Q learning parameters ===
+Gamma: 0.99
+Initial epsilon: 0.9 
+Epsilon lowered each episode by 0.00016
+Minimal epsilon: 0.1 
+Learning rate: 0.001
+
+## Rewards
+276.01
+271.81
+245.19
+277.55
+247.58
+
+
