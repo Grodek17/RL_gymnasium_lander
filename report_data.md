@@ -1334,3 +1334,44 @@ Learning rate: 0.001
 247.58
 
 
+### EVALUATION: Test_of_more_aesthetic desing (changes) ===
+
+  Evaluation date: 2026:06:03:13:44
+
+  random actions (random baseline)?: False
+  network file name: trained_networks/64_relu_2nd.pth
+  Number of evaluation episodes: 5
+  note: this time this is written in proper markdown
+
+  ## Evaluation video:
+  ![Evaluation GIF](videos/test_test.gif)
+
+## network details
+  Input size: 8
+  First hidden layer size: 64
+  Second hidden layer: 64
+  activation function: ReLU
+  output size: 4
+  network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4
+
+  ## training details
+  Number of training episodes: 6000
+  Buffer size: 50000
+  Batch size: 64
+  Target network updated each 1000 steps
+
+  ## Q learning parameters 
+  Gamma: 0.99
+  Initial epsilon: 0.9
+  Epsilon lowered each episode by 0.00016
+  Minimal epsilon: 0.1
+  Learning rate: 0.001
+
+  ## Rewards
+  271.11
+  240.36
+  241.42
+  257.92
+  269.20
+  
+
