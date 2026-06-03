@@ -134,8 +134,8 @@ def evaluation(evaluation_steps, trained_model_path, random_baseline=False, reco
     env.close()  
     print("rewards get by model: ", rewards)
     
-    if RecordVideo:
+    if record_video:
         convert_mp4_to_gif("videos/" + name + "-episode-0.mp4", "videos/" + name + ".gif")
 
     reportResults(evaluation_steps, rewards, trained_model_path, random_baseline, data,
-                   gif_path="videos/" + name + ".gif" if RecordVideo else False)
+                   gif_path="videos/" + name + ".gif" if record_video else False)

@@ -254,7 +254,7 @@ def training():
 
 def main():
     #training()
-    evaluation(5, "trained_networks/32_32, 600 episodes.pth", random_baseline=False, record_video=True)
+    evaluation(15, "trained_networks/64_relu_2nd.pth", random_baseline=False, record_video=False)
     pass
 
 if __name__ == "__main__":

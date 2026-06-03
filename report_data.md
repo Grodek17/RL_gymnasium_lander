@@ -673,4 +673,52 @@ Learning rate: 0.001
   -26.31  
   ---  
 
+  ## EVALUATION: longer test of 64-64 
+
+  Evaluation date: 2026, 06, 03, 16:24  
+
+  random actions (random baseline)?: False  
+  network file name: trained_networks/64_relu_2nd.pth  
+  Number of evaluation episodes: 15  
+  note: performed well  
+
+  ### network details  
+  Input size: 8  
+  First hidden layer size: 64  
+  Second hidden layer: 64  
+  activation function: ReLU  
+  output size: 4  
+  network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4  
+
+  ### training details  
+  Number of training episodes: 6000  
+  Buffer size: 50000  
+  Batch size: 64  
+  Target network updated each 1000 steps  
+
+  ### Q learning parameters  
+  Gamma: 0.99  
+  Initial epsilon: 0.9  
+  Epsilon lowered each episode by 0.00016  
+  Minimal epsilon: 0.1  
+  Learning rate: 0.001  
+
+  ### Rewards  
+  245.65  
+  270.72  
+  271.29  
+  241.44  
+  262.93  
+  280.91  
+  257.29  
+  226.06  
+  249.99  
+  247.59  
+  285.17  
+  247.79  
+  271.56  
+  271.43  
+  262.45  
+  ---  
+
   
