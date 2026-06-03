@@ -32,12 +32,12 @@ def reportResults(evaluation_steps, rewards, trained_model_path, random_baseline
     time = datetime.now().strftime("%Y:%m:%d:%H:%M")
     
     with open("report_data.md", "a", encoding="utf-8") as file:
-        file.write(f"### EVALUATION: {title} ===\n\n  ")
-        file.write(f"Evaluation date: {time}\n\n  ")
-        file.write(f"random actions (random baseline)?: {random_baseline}\n  ")
-        file.write(f"network file name: {trained_model_path}\n  ")
-        file.write(f"Number of evaluation episodes: {evaluation_steps}\n  ")
-        file.write(f"note: {note}\n\n  ")
+        file.write(f"#### EVALUATION: {title} \n\n  ")
+        file.write(f"Evaluation date: {time}  \n\n  ")
+        file.write(f"random actions (random baseline)?: {random_baseline}  \n  ")
+        file.write(f"network file name: {trained_model_path}  \n  ")
+        file.write(f"Number of evaluation episodes: {evaluation_steps}  \n  ")
+        file.write(f"note: {note}  \n\n  ")
 
         if gif_path != False:
             file.write(f"## Evaluation video:\n  ")
