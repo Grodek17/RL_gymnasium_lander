@@ -6,6 +6,9 @@
 # src folder with all code
 # choose what to do in main switch/input
 # todo save loss functino
+# todo code cleaning
+# todo attaching best training mean to savenetwork & report
+# better main / menu
 import gymnasium
 import random
 import torch 
