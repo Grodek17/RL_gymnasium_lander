@@ -121,41 +121,41 @@ def reportResults(episode_list, mean_list, epsilon_list, saved_training):
     print("please write note about this specific training: ")
     note = input()
 
-    time = datetime.now().strftime("%Y:%m:%d:%H:%M")
+    time = datetime.now().strftime("%Y.%m.%d %H:%M")
     with open("report_data.md", "a", encoding="utf-8") as file:
-        file.write(f"#=== REPORT: {title} ===\n")
-        file.write(f"Report date: {time} \n\n")
-        file.write(f"network saved as: {networkfile_name}.pth \n")
-        file.write(f"best reward scored by network: **{saved_training.best_reward_training}** \n")
-        file.write(f"note: {note} \n \n")
+        file.write(f"## TRAINING REPORT: {title}  \n  ")
+        file.write(f"Report date: {time}  \n\n  ")
+        file.write(f"network saved as: {networkfile_name}.pth  \n  ")
+        file.write(f"best reward scored by network: **{saved_training.best_reward_training}**  \n  ")
+        file.write(f"note: {note}  \n\n  ")
 
-        file.write("=== network details ===\n")
-        file.write(f"Input size: {saved_training.input_size}\n")
-        file.write(f"First hidden layer size: {saved_training.first_layer_size}\n")
-        file.write(f"Second hidden layer: {saved_training.second_layer_size}\n")
-        file.write(f"activation function: {saved_training.activation}\n")
-        file.write(f"output size: {saved_training.output_size}\n")
-        file.write(f"network 'graph': {saved_training.input_size} -> {saved_training.first_layer_size} -> {saved_training.activation} -> {saved_training.second_layer_size} -> {saved_training.activation} -> {saved_training.output_size}\n\n")
+        file.write("### network details  \n  ")
+        file.write(f"Input size: {saved_training.input_size}  \n  ")
+        file.write(f"First hidden layer size: {saved_training.first_layer_size}  \n  ")
+        file.write(f"Second hidden layer: {saved_training.second_layer_size}  \n  ")
+        file.write(f"activation function: {saved_training.activation}  \n  ")
+        file.write(f"output size: {saved_training.output_size}  \n  ")
+        file.write(f"network 'graph': {saved_training.input_size} -> {saved_training.first_layer_size} -> {saved_training.activation} -> {saved_training.second_layer_size} -> {saved_training.activation} -> {saved_training.output_size}  \n\n  ")
 
-        file.write(f"=== training details ===\n")
-        file.write(f"Number of training episodes: {saved_training.num_of_training_eps}\n")
-        file.write(f"Buffer size: {saved_training.buffer_size}\n")
-        file.write(f"Batch size: {saved_training.batch_size}\n")
-        file.write(f"Target network updated each {saved_training.network_update_each} steps \n \n")
+        file.write(f"### training details  \n  ")
+        file.write(f"Number of training episodes: {saved_training.num_of_training_eps}  \n  ")
+        file.write(f"Buffer size: {saved_training.buffer_size}  \n  ")
+        file.write(f"Batch size: {saved_training.batch_size}  \n  ")
+        file.write(f"Target network updated each {saved_training.network_update_each} steps  \n\n  ")
 
-        file.write(f"=== Q learning parameters ===\n")
-        file.write(f"Gamma: {saved_training.gamma}\n")
-        file.write(f"Initial epsilon: {saved_training.initial_epsilon} \n")
-        file.write(f"Epsilon lowered each episode by {saved_training.epsilon_subtract}\n")
-        file.write(f"Minimal epsilon: {saved_training.min_epsilon} \n")
-        file.write(f"Learning rate: {saved_training.learning_rate}\n\n")
-        file.write("![Training plot](plots/" + filename + ".png)\n\n")
-        file.write("## Mean rewards\n\n")
+        file.write(f"### Q learning parameters  \n  ")
+        file.write(f"Gamma: {saved_training.gamma}  \n  ")
+        file.write(f"Initial epsilon: {saved_training.initial_epsilon}  \n  ")
+        file.write(f"Epsilon lowered each episode by {saved_training.epsilon_subtract}  \n  ")
+        file.write(f"Minimal epsilon: {saved_training.min_epsilon}  \n  ")
+        file.write(f"Learning rate: {saved_training.learning_rate}  \n\n  ")
+        file.write("![Training plot](plots/" + filename + ".png)  \n\n  ")
 
+        file.write("### Mean rewards  \n\n  ")
         for episode, reward, epsilon in zip(episode_list, mean_list, epsilon_list):
             if episode % 500 == 0:
-                file.write(f"- Episode {episode:.0f}: {reward:.2f}, epsilon: {epsilon:.2f}\n")
-        file.write("\n\n")
+                file.write(f"- Episode {episode:.0f}: {reward:.2f}, epsilon: {epsilon:.2f}  \n  ")
+        file.write(f"---  \n\n  ")
 
 #main loop of training in the enviroment
 def training():
@@ -253,8 +253,8 @@ def training():
 
 
 def main():
-    #training()
-    evaluation(5, "trained_networks/64_relu_2nd.pth", random_baseline=False, record_video=True)
+    training()
+    #evaluation(5, "trained_networks/64_relu_2nd.pth", random_baseline=False, record_video=True)
     pass
 
 if __name__ == "__main__":

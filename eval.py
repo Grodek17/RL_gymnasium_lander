@@ -69,7 +69,7 @@ def reportResults(evaluation_steps, rewards, trained_model_path, random_baseline
 
         for reward in rewards:
             file.write(f"{reward:.2f}  \n  ")
-        file.write("  \n\n  ")
+        file.write(f"---  \n\n  ")
 
 
 
