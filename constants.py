@@ -10,7 +10,7 @@ MAX_ANGULAR_VELOCITY = 10.      #angular velocity of ship
 
 
 #constants
-NUMBER_OF_EPISODES = 6000    # number of training episodes
+NUMBER_OF_EPISODES = 600    # number of training episodes
 BUFFER_SIZE = 50000         # size of experience buffer
 DEBUG = False               # flag for debug prints
 TEMP_DEBUG = False          # another flag for debug, possibly to delete
@@ -21,15 +21,15 @@ LAST_REWARDS_SIZE = 50      # size of list of last reward for calculating mean/m
 #hyperparameters of Q learning [name this better]
 GAMMA = 0.99                    #"importance of future"
 INITIAL_EPSILON = 0.9         #random move probability
-EPSILON_DECAY_SUBSTRACT = 0.00016 #epsilon reduced by this ammount every episode
+EPSILON_DECAY_SUBSTRACT = 0.0018 #epsilon reduced by this ammount every episode
 MINIMAL_EPSILON = 0.1
 LEARNING_RATE = 0.001       #move this into constants
 UPDATE_TARGET_EACH_STEPS = 1000
 
 #constants of NN to train
 INPUT_SIZE = 8
-FIRST_H_LAYER = 128
-SECOND_H_LAYER = 128
+FIRST_H_LAYER = 32
+SECOND_H_LAYER = 32
 ACTIVATION_FUNCTION = "ReLU"
 OUTPUT_SIZE = 4
 

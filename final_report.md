@@ -1,9 +1,102 @@
-### this is not an official report  
-### this file serves as a data dump for various model implementation during work on the project  
-### for official report, open the file [here](final_report.md)  
+# Reinforcement Learning with a Multilayer Neural Network for the Lander Control Problem
+
+#### Mateusz Grodecki, 198385
+
+The main goal of this project was to solve the lander control problem using reinforcement learning, artificial neural networks, and the Deep Q-Learning approach.
+
+The project was implemented in Python using the Gymnasium environment and the PyTorch library. During development, several successful agents were trained according to the Gymnasium scoring criteria. The final version of the program allows the user to train, save, load, evaluate, and compare multiple learned policies.
 
 ---
 
+## Main Concepts
+
+The chosen learning method was Q-Learning. In classical tabular Q-Learning, the agent stores estimated values of actions in a Q-table and updates them using the formula:
+
+```text
+Q(s, a) <- Q(s, a) + α * (target - Q(s, a))
+
+target = r + γ * max Q(s', a')
+```
+
+where:
+
+- `s` — current state,
+- `a` — selected action,
+- `r` — reward received after the action,
+- `s'` — next state,
+- `α` — learning rate,
+- `γ` — discount factor.
+
+This approach works well for environments with a finite and relatively small number of states, such as movement on a small 2D grid. However, the LunarLander problem uses continuous observations, so storing every possible state in a table is not realistic.
+
+Because of that, the tabular Q-table was replaced with a neural network. The network takes the current observation as input and returns estimated Q-values for all possible actions.
+
+---
+
+## Main Issues and Improvements
+
+### Replacing the Q-table with a neural network
+
+In Deep Q-Learning, the neural network works as a Q-value approximator. Instead of storing values for all states in a table, the model learns to estimate them.
+
+The input of the network is the current observation from the environment, and the output contains Q-values for available actions. During exploitation, the action with the highest Q-value is selected.
+
+---
+
+### Replay buffer rework
+
+Initially, the replay buffer was implemented as a Python list. This worked for small experiments, but became inefficient when the buffer reached full capacity.
+
+The main issue was using:
+
+```python
+pop(0)
+```
+
+to remove the oldest experience. This operation has `O(n)` complexity because all remaining elements have to be shifted.
+
+To solve this problem, the buffer was rewritten as a circular buffer based on NumPy arrays. New experiences overwrite the oldest ones using an index pointer. This made memory management faster and more stable.
+
+Another optimization was storing raw NumPy values in the buffer instead of immediately converting them to tensors. Since not every stored experience is used for training, this avoids unnecessary computation.
+
+---
+
+### Training on random batches
+
+The model is trained using random batches sampled from the replay buffer. This improves learning stability because the network does not learn only from consecutive, strongly correlated states.
+
+For example, without random sampling, the model could train on many almost identical frames of the lander falling straight down. Random batches reduce this problem and make the learning process more balanced.
+
+---
+
+### Learning network and target network
+
+Two neural networks were used:
+
+- the learning network,
+- the target network.
+
+The learning network is updated during training, while the target network is updated less frequently. This prevents the model from constantly chasing a target that changes immediately after every update.
+
+This improvement had one of the biggest positive effects on training stability and final agent performance.
+
+---
+
+### Observation normalization
+
+Input observations were normalized to a similar numerical range. This prevents larger input values, such as velocity, from having an unfairly strong influence compared to smaller values, such as angle.
+
+Normalization made learning more stable and helped the neural network process the environment state more effectively.
+
+---
+
+## Training and Evaluation Logs
+
+During development, report-generation functions were implemented. They automatically save training plots, model metadata, hyperparameters, and selected evaluation results into Markdown report files.
+
+Some selected training and evaluation logs are included below.
+
+---
 ## REPORT: INITIAL NN test results
 
 note: this was initial test of neural network, without improvements like normalising the inputs, rewards were steadely decreasing which is concerning  
@@ -128,51 +221,6 @@ Learning rate: 0.001
 - Episode 5500.0: 217.03, epsilon: 0.10  
 - Episode 5950.0: 231.89, epsilon: 0.10  
 ---
-
-## EVALUATION: 8-64-relu-64-relu-4 trained network 
-
-network file name: save1.pth  
-note: this was evaluation of previously trained network with bigger buffer and updating done by x-steps and not x-episodes. Network performed very well in almost every trial  
-
-Number of evaluation episodes: 10  
-## Rewards  
-264.51  
--9.83  
-260.74  
-220.15  
-289.63  
-233.75  
-230.54  
-257.33  
-218.62  
-257.41  
----
-
-## EVALUATION: Random_baseline_test
-
-random actions (random baseline)?: True  
-network file name: save1.pth   
-note: this was test of random model action choosing (randint(0,3)) for comparison with trained models  
-Number of evaluation episodes: 10   
-## Rewards  
--302.39  
--78.35  
--85.41  
--388.80  
--488.92  
--263.10  
--263.32  
--104.85  
--132.61  
--181.27  
----
-
-## REPORT: test of reworked saving and reporting modules
-Report date: 2026:05:31:18:07  
-
-network saved as: test_new_format_1.pth  
-
-
 ## REPORT: 64_RELU (worse result)  
 Report date: 2026:05:31:20:20  
 
@@ -310,93 +358,7 @@ Learning rate: 0.001
 - Episode 5000: 192.07, epsilon: 0.10  
 - Episode 5500: 246.39, epsilon: 0.10  
 ---
-
-## EVALUATION: 128_ReLU eval  
-
-Evaluation date: 2026:06:01:00:13  
-
-random actions (random baseline)?: False  
-network file name: trained_networks/128_ReLU.pth  
-Number of evaluation episodes: 10  
-note: model performed very well, landing each time, even when was very thrown off at the beggining  
-
-### network details
-Input size: 8  
-First hidden layer size: 128  
-Second hidden layer: 128  
-activation function: ReLU  
-output size: 4  
-network 'graph': 8 -> 128 -> ReLU -> 128 -> ReLU -> 4  
-
-### training details  
-Number of training episodes: 6000  
-Buffer size: 50000  
-Batch size: 64  
-Target network updated each 1000 steps  
- 
-### Q learning parameters
-Gamma: 0.99  
-Initial epsilon: 0.9  
-Epsilon lowered each episode by 0.00016  
-Minimal epsilon: 0.1  
-Learning rate: 0.001  
-
-### Rewards  
-277.68  
-205.81  
-266.70  
-213.16  
-247.04  
-213.68  
-274.73  
-262.64  
-205.34  
-224.97  
-
-
-### EVALUATION: 64_ReLU  
-
-Evaluation date: 2026:06:01:00:15  
-
-random actions (random baseline)?: False  
-network file name: trained_networks/64_relu_2nd.pth  
-Number of evaluation episodes: 10  
-note: Model landed flawlessly between the poles each time, subjectively doing it more stylish than 128 neuron counterpart  
-
-### network details
-Input size: 8  
-First hidden layer size: 64  
-Second hidden layer: 64  
-activation function: ReLU  
-output size: 4  
-network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4  
-
-### training details  
-Number of training episodes: 6000  
-Buffer size: 50000  
-Batch size: 64  
-Target network updated each 1000 steps  
- 
-### Q learning parameters ===
-Gamma: 0.99  
-Initial epsilon: 0.9  
-Epsilon lowered each episode by 0.00016  
-Minimal epsilon: 0.1  
-Learning rate: 0.001  
-
-### Rewards  
-306.85  
-270.25  
-263.94  
-265.54  
-244.04  
-266.60  
-227.05  
-278.00  
-251.34  
-258.41    
-
-  ## TRAINING REPORT: 64->128 600 episode training  
+## TRAINING REPORT: 64->128 600 episode training  
   Report date: 2026.06.03 14:20  
 
   network saved as: 64_128_600_episodes.pth  
@@ -430,8 +392,7 @@ Learning rate: 0.001
 
   - Episode 0: -182.49, epsilon: 0.90  
   - Episode 500: 145.84, epsilon: 0.10  
-    
-
+  ---  
   ## TRAINING REPORT: 32_32, 600 episodes  
   Report date: 2026.06.03 15:55  
 
@@ -468,7 +429,7 @@ Learning rate: 0.001
   - Episode 500: -19.13, epsilon: 0.10  
   ---  
 
-  ## EVALUATION: 64_relu with collapse 
+## EVALUATION: 64_relu with collapse 
 
   Evaluation date: 2026, 06, 03, 15:58  
 
@@ -673,4 +634,5 @@ Learning rate: 0.001
   -26.31  
   ---  
 
+  
   
