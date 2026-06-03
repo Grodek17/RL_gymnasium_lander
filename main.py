@@ -124,6 +124,7 @@ def reportResults(episode_list, mean_list, epsilon_list, saved_training):
     time = datetime.now().strftime("%Y.%m.%d %H:%M")
     with open("report_data.md", "a", encoding="utf-8") as file:
         file.write(f"## TRAINING REPORT: {title}  \n  ")
+        file.write("![Training plot](plots/" + filename + ".png)  \n\n  ")
         file.write(f"Report date: {time}  \n\n  ")
         file.write(f"network saved as: {networkfile_name}.pth  \n  ")
         file.write(f"best reward scored by network: **{saved_training.best_reward_training}**  \n  ")
@@ -149,7 +150,6 @@ def reportResults(episode_list, mean_list, epsilon_list, saved_training):
         file.write(f"Epsilon lowered each episode by {saved_training.epsilon_subtract}  \n  ")
         file.write(f"Minimal epsilon: {saved_training.min_epsilon}  \n  ")
         file.write(f"Learning rate: {saved_training.learning_rate}  \n\n  ")
-        file.write("![Training plot](plots/" + filename + ".png)  \n\n  ")
 
         file.write("### Mean rewards  \n\n  ")
         for episode, reward, epsilon in zip(episode_list, mean_list, epsilon_list):
@@ -253,8 +253,8 @@ def training():
 
 
 def main():
-    training()
-    #evaluation(5, "trained_networks/64_relu_2nd.pth", random_baseline=False, record_video=True)
+    #training()
+    evaluation(5, "trained_networks/32_32, 600 episodes.pth", random_baseline=False, record_video=True)
     pass
 
 if __name__ == "__main__":

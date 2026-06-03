@@ -2,55 +2,6 @@
 ### this file serves as a data dump for various model implementation during work on the project  
 ### for official report, open the file [here](final_report.md)  
 
-## REPORT
-
-note: this run was test of new logging function  
-memo: basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning  
-Number of episodes: 200  
-Buffer size: 3000  
-Batch size: 64  
-Gamma: 0.99  
-Learning rate: 0.001  
-
-## Mean rewards  
-
-## REPORT
-
-note: another test of logging function  
-memo: basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning  
-Number of episodes: 200  
-Buffer size: 3000  
-Batch size: 64  
-Gamma: 0.99  
-Learning rate: 0.001  
-
-## Mean rewards:  
-
-- Episode 0.0: -48.52  
-- Episode 50.0: -155.52  
-- Episode 100.0: -172.56  
-- Episode 150.0: -175.01  
----
-
-## during training phase betterment of NN will be evaluated on 5000 episodes test runs 
-
-## REPORT: LOG UPDATE TEST  
-
-note: test if program will work after changes in logging function  
-memo: basic DQN, training done in batches, no normalisation, only one NN, random batches for better learning  
-NN Layout: 8->64->RELU->64->RELU->4 (two hidden layers of 64 neurons, ReLU activation function, MSE loss function)  
-Number of episodes: 200  
-Buffer size: 3000  
-Batch size: 64  
-Gamma: 0.99  
-Learning rate: 0.001  
-
-## Mean rewards  
-
-- Episode 0.0: -83.63, epsilon: 1.00  
-- Episode 50.0: -174.24, epsilon: 0.99  
-- Episode 100.0: -174.25, epsilon: 0.99  
-- Episode 150.0: -178.28, epsilon: 0.98  
 ---
 
 ## REPORT: INITIAL NN test results
@@ -480,5 +431,246 @@ Learning rate: 0.001
   - Episode 0: -182.49, epsilon: 0.90  
   - Episode 500: 145.84, epsilon: 0.10  
     
+
+  ## TRAINING REPORT: 32_32, 600 episodes  
+  Report date: 2026.06.03 15:55  
+
+  network saved as: 32_32, 600 episodes.pth  
+  best reward scored by network: **53.864260453528**  
+  note: This network had less neurons and performed significantly worse, episodes with rewards bellow 200 are not considered solutions.  
+
+  ### network details  
+  Input size: 8  
+  First hidden layer size: 32  
+  Second hidden layer: 32  
+  activation function: ReLU  
+  output size: 4  
+  network 'graph': 8 -> 32 -> ReLU -> 32 -> ReLU -> 4  
+
+  ### training details  
+  Number of training episodes: 600  
+  Buffer size: 50000  
+  Batch size: 64  
+  Target network updated each 1000 steps  
+
+  ### Q learning parameters  
+  Gamma: 0.99  
+  Initial epsilon: 0.9  
+  Epsilon lowered each episode by 0.0018  
+  Minimal epsilon: 0.1  
+  Learning rate: 0.001  
+
+  ![Training plot](plots/32_32, 600 episodes.png)  
+
+  ### Mean rewards  
+
+  - Episode 0: -413.38, epsilon: 0.90  
+  - Episode 500: -19.13, epsilon: 0.10  
+  ---  
+
+  ## EVALUATION: 64_relu with collapse 
+
+  Evaluation date: 2026, 06, 03, 15:58  
+
+  random actions (random baseline)?: False  
+  network file name: trained_networks/64_relu.pth  
+  Number of evaluation episodes: 5  
+  note: Evaluation of 64-64 relu network that collapsed during training but quickly bounced back  
+
+  ### Evaluation video:  
+  ![Evaluation GIF](videos/64_relu.gif)  
+
+### network details  
+  Input size: 8  
+  First hidden layer size: 64  
+  Second hidden layer: 64  
+  activation function: ReLU  
+  output size: 4  
+  network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4  
+
+  ### training details  
+  Number of training episodes: 6000  
+  Buffer size: 50000  
+  Batch size: 64  
+  Target network updated each 1000 steps  
+
+  ### Q learning parameters  
+  Gamma: 0.99  
+  Initial epsilon: 0.9  
+  Epsilon lowered each episode by 0.00016  
+  Minimal epsilon: 0.1  
+  Learning rate: 0.001  
+
+  ### Rewards  
+  -1469.17  
+  199.73  
+  -1335.33  
+  205.46  
+  180.49  
+  ---  
+
+  ## EVALUATION: 64_relu 2nd train 
+
+  Evaluation date: 2026, 06, 03, 16:02  
+
+  random actions (random baseline)?: False  
+  network file name: trained_networks/64_relu_2nd.pth  
+  Number of evaluation episodes: 5  
+  note: Second test to check if network always collapses or was it very bad luck. It performed very well  
+
+  ### Evaluation video:  
+  ![Evaluation GIF](videos/64_relu_2nd.gif)  
+
+### network details  
+  Input size: 8  
+  First hidden layer size: 64  
+  Second hidden layer: 64  
+  activation function: ReLU  
+  output size: 4  
+  network 'graph': 8 -> 64 -> ReLU -> 64 -> ReLU -> 4  
+
+  ### training details  
+  Number of training episodes: 6000  
+  Buffer size: 50000  
+  Batch size: 64  
+  Target network updated each 1000 steps  
+
+  ### Q learning parameters  
+  Gamma: 0.99  
+  Initial epsilon: 0.9  
+  Epsilon lowered each episode by 0.00016  
+  Minimal epsilon: 0.1  
+  Learning rate: 0.001  
+
+  ### Rewards  
+  264.22  
+  266.79  
+  285.84  
+  248.66  
+  282.70  
+  ---  
+
+  ## EVALUATION: 128_relu 
+
+  Evaluation date: 2026, 06, 03, 16:04  
+
+  random actions (random baseline)?: False  
+  network file name: trained_networks/128_ReLU.pth  
+  Number of evaluation episodes: 5  
+  note: Test of network with higher ammount of neurons  
+
+  ### Evaluation video:  
+  ![Evaluation GIF](videos/128_ReLU.gif)  
+
+### network details  
+  Input size: 8  
+  First hidden layer size: 128  
+  Second hidden layer: 128  
+  activation function: ReLU  
+  output size: 4  
+  network 'graph': 8 -> 128 -> ReLU -> 128 -> ReLU -> 4  
+
+  ### training details  
+  Number of training episodes: 6000  
+  Buffer size: 50000  
+  Batch size: 64  
+  Target network updated each 1000 steps  
+
+  ### Q learning parameters  
+  Gamma: 0.99  
+  Initial epsilon: 0.9  
+  Epsilon lowered each episode by 0.00016  
+  Minimal epsilon: 0.1  
+  Learning rate: 0.001  
+
+  ### Rewards  
+  162.67  
+  237.28  
+  48.04  
+  268.71  
+  270.33  
+  ---  
+
+  ## EVALUATION: 64_128, 600 episodes 
+
+  Evaluation date: 2026, 06, 03, 16:07  
+
+  random actions (random baseline)?: False  
+  network file name: trained_networks/64_128_600_episodes.pth  
+  Number of evaluation episodes: 5  
+  note: Test of network trained on 600 episodes instead of 6000. Epsilon substraction adjusted  
+
+  ### Evaluation video:  
+  ![Evaluation GIF](videos/64_128_600_episodes.gif)  
+
+### network details  
+  Input size: 8  
+  First hidden layer size: 64  
+  Second hidden layer: 128  
+  activation function: ReLU  
+  output size: 4  
+  network 'graph': 8 -> 64 -> ReLU -> 128 -> ReLU -> 4  
+
+  ### training details  
+  Number of training episodes: 600  
+  Buffer size: 50000  
+  Batch size: 64  
+  Target network updated each 1000 steps  
+
+  ### Q learning parameters  
+  Gamma: 0.99  
+  Initial epsilon: 0.9  
+  Epsilon lowered each episode by 0.0018  
+  Minimal epsilon: 0.1  
+  Learning rate: 0.001  
+
+  ### Rewards  
+  283.76  
+  209.32  
+  215.60  
+  270.96  
+  299.25  
+  ---  
+
+  ## EVALUATION: 32_32 600 episodes network 
+
+  Evaluation date: 2026, 06, 03, 16:10  
+
+  random actions (random baseline)?: False  
+  network file name: trained_networks/32_32, 600 episodes.pth  
+  Number of evaluation episodes: 5  
+  note: Test of network with lesser ammount of neurons, performed bad  
+
+  ### Evaluation video:  
+  ![Evaluation GIF](videos/32_32, 600 episodes.gif)  
+
+### network details  
+  Input size: 8  
+  First hidden layer size: 32  
+  Second hidden layer: 32  
+  activation function: ReLU  
+  output size: 4  
+  network 'graph': 8 -> 32 -> ReLU -> 32 -> ReLU -> 4  
+
+  ### training details  
+  Number of training episodes: 600  
+  Buffer size: 50000  
+  Batch size: 64  
+  Target network updated each 1000 steps  
+
+  ### Q learning parameters  
+  Gamma: 0.99  
+  Initial epsilon: 0.9  
+  Epsilon lowered each episode by 0.0018  
+  Minimal epsilon: 0.1  
+  Learning rate: 0.001  
+
+  ### Rewards  
+  -255.17  
+  -27.72  
+  135.99  
+  190.24  
+  -26.31  
+  ---  
 
   
